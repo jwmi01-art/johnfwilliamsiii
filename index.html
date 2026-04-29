@@ -135,6 +135,10 @@
       color: var(--ink); margin-bottom: 1.5rem;
     }
     .hero-name span { color: var(--accent); }
+    .hero-suffix { letter-spacing: 0.02em; }
+    .cta-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.2rem; }
+    .cta-grid .project-cta { font-size: 0.78rem; padding: 0.45rem 0.85rem; background: none; border: 1px solid var(--accent); color: var(--accent); border-radius: 3px; cursor: pointer; font-family: inherit; letter-spacing: 0.04em; text-decoration: none; transition: background 0.2s, color 0.2s; }
+    .cta-grid .project-cta:hover { background: var(--accent); color: #fff; }
     .hero-desc {
       font-family: 'Instrument Serif', serif;
       font-size: 1.25rem; line-height: 1.6;
@@ -451,9 +455,9 @@
   <section id="hero">
     <div class="hero-left">
       <div class="hero-eyebrow">Digital Strategy & Operations</div>
-      <h1 class="hero-name">John<br><span>F.</span><br>Williams</h1>
+      <h1 class="hero-name">John<br><span>F.</span><br>Williams<br><span class="hero-suffix">III</span></h1>
       <p class="hero-desc">I build the systems that make <em>sales organizations run better</em> and revenue grow faster — from automation platforms and client portals to lead generation and advisor enablement tools.</p>
-      <a href="#projects" class="hero-cta">View My Work <span class="hero-cta-arrow">↓</span></a>
+
     </div>
     <div class="hero-right">
       <div class="hero-right-bg"></div>
@@ -543,7 +547,7 @@
                 <li>Architected a 5-table Airtable CRM with Make.com automation including webhook/JSON parsing and multi-step advisor notification workflow</li>
                 <li>Built a Softr.io client portal with role-based access, integrated with the Airtable backend</li>
                 <li>Designed the Retirement Success Score™ — a proprietary 0–40 composite scoring system across four planning dimensions used as the lead generation engine</li>
-                <li>Developed a 30-video content library architecture segmented by educator career stage and hire date</li>
+                <li>Developed a 30-video content library architecture segmented by educator career stage and hire date — wrote all video scripts, handled all photography for Sean's brand assets, built and operated the full recording studio setup (green screen, lighting, microphones), and personally directed, recorded, and edited every video in the library</li>
                 <li>Full deployment stack: WordPress/Elementor, Cloudflare Pages, cPanel, GitHub, SendGrid with domain authentication</li>
               </ul>
               <div class="stack-label">Tech Stack</div>
@@ -557,7 +561,16 @@
                 <span class="stack-tag">GitHub</span>
                 <span class="stack-tag">cPanel</span>
               </div>
-              <a href="mailto:jwmi01@gmail.com?subject=K12 Portfolio Request" class="project-cta">Request portfolio access →</a>
+              <div class="stack-label" style="margin-top:1.2rem;">View Live Site</div>
+              <div class="cta-grid">
+                <button class="project-cta" onclick="openModal('https://k12retirementplanning.com/', 'K12 — Home')">Home Page →</button>
+                <button class="project-cta" onclick="openModal('https://k12retirementplanning.com/meet-sean/', 'K12 — Meet Sean')">Meet Sean →</button>
+                <button class="project-cta" onclick="openModal('https://k12retirementplanning.com/video-library/', 'K12 — Video Library')">Video Library →</button>
+                <button class="project-cta" onclick="openModal('https://k12retirementplanning.com/district-partner/', 'K12 — District Partner')">District Partner →</button>
+                <button class="project-cta" onclick="openModal('https://k12retirementplanning.com/success-planner/', 'K12 — Success Planner')">Success Planner →</button>
+                <button class="project-cta" onclick="openModal('https://k12retirementplanning.com/client-dashboard/', 'K12 — Client Dashboard')">Client Dashboard →</button>
+                <button class="project-cta" onclick="openModal('https://k12retirementplanning.com/executive-presentation/', 'K12 — Executive Presentation')">Executive Presentation →</button>
+              </div>
             </div>
           </div>
         </div>
@@ -577,11 +590,13 @@
           </div>
           <div class="project-body">
             <div class="project-body-inner">
-              <p>Inherited a manual sales reporting process that took 24+ hours to verify and was riddled with data retrieval failures. Redesigned it from the ground up — reducing verification time by 99.99% and eliminating chronic data issues entirely.</p>
+              <p>Inherited a manual sales reporting process that took 24+ hours to verify and was riddled with data retrieval failures. Redesigned it from the ground up into a fully operational production intelligence system — the single source of truth for over 74,000 annual business submissions, 393 agents, and $440M+ in annual production volume across 14 transaction types. The system drives weekly executive reporting, agent leaderboards, multi-year trend comparisons, and annualized pace projections — replacing fragmented manual processes with automated, always-current data.</p>
               <ul class="project-highlights">
-                <li>Reduced reporting verification time from 24 hours to near-instantaneous through process redesign and automation</li>
-                <li>Led SharePoint/Power Automate modernization: production dashboard, Fixed Annuity data entry form with conditional logic, management proposal to firm principals</li>
-                <li>Built custom commission and activity calculators for a complex annuity and life insurance product environment</li>
+                <li>Reduced reporting verification time from 24+ hours to near-instantaneous through full process redesign and automation</li>
+                <li>Powers all company sales contests — standings, category leaders, and real-time rankings are pulled directly from the system each week</li>
+                <li>Drives a weekly production newsletter distributed to the full advisor base, spotlighting leaders across periodic, transfer, and life insurance categories</li>
+                <li>Integrated Calendly appointment data to generate forward-looking production projections, connecting scheduled advisor activity to anticipated output</li>
+                <li>Led SharePoint/Power Automate modernization: production dashboard, Fixed Annuity data entry form with conditional logic, and a formal management proposal to firm principals</li>
                 <li>Cited as key contributor to a 39% boost in annual production across the advisor base</li>
               </ul>
               <div class="stack-label">Tech Stack</div>
@@ -624,41 +639,7 @@
                 <span class="stack-tag">Cloudflare Pages</span>
                 <span class="stack-tag">GitHub</span>
               </div>
-              <a href="mailto:jwmi01@gmail.com?subject=Team401k Portfolio Request" class="project-cta">Request portfolio access →</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- VOYA -->
-        <div class="project-card" id="card-voya">
-          <div class="project-header" onclick="toggleCard('card-voya')">
-            <div>
-              <div class="project-meta">
-                <span class="project-tag">Internal Tool</span>
-                <span class="project-year">2024</span>
-              </div>
-              <div class="project-title">VOYA Client Reconciliation Tool</div>
-              <div class="project-subtitle">Browser-based reconciliation tool deployed to Cloudflare Pages for financial advisor client data management</div>
-            </div>
-            <button class="project-toggle" aria-label="Expand project">+</button>
-          </div>
-          <div class="project-body">
-            <div class="project-body-inner">
-              <p>Built a custom browser-based reconciliation tool to resolve chronic client data mismatches between VOYA and internal systems. Deployed as a lightweight static application — no backend required — with full CSV import/export capability.</p>
-              <ul class="project-highlights">
-                <li>Browser-based tool requiring no backend infrastructure — pure HTML/CSS/JS</li>
-                <li>CSV import and fuzzy matching logic to identify and flag data discrepancies</li>
-                <li>Deployed to Cloudflare Pages via GitHub for instant team access</li>
-                <li>Also built a hybrid VOYA/JOHN CSV client database consolidation system</li>
-              </ul>
-              <div class="stack-label">Tech Stack</div>
-              <div class="stack-tags">
-                <span class="stack-tag">HTML / CSS / JavaScript</span>
-                <span class="stack-tag">Cloudflare Pages</span>
-                <span class="stack-tag">GitHub</span>
-                <span class="stack-tag">CSV Processing</span>
-              </div>
-              <a href="mailto:jwmi01@gmail.com?subject=VOYA Tool Portfolio Request" class="project-cta">Request portfolio access →</a>
+              <button class="project-cta" onclick="openModal('Team401k_Site.html', 'team401k.com — 401(k) Consulting Lead Gen Site')">View live site →</button>
             </div>
           </div>
         </div>
@@ -672,16 +653,17 @@
                 <span class="project-year">2012 – 2018</span>
               </div>
               <div class="project-title">EMU Attendance & Data Platform</div>
-              <div class="project-subtitle">QR-based attendance tracking system scaled from 2 to 140 devices across a 23,000-student campus — featured in a published vendor case study</div>
+              <div class="project-subtitle">QR-based attendance tracking system scaled from 2 to 140 personal mobile devices across a 23,000-student campus — eliminating dedicated hardware costs and enabling scanning anywhere on campus</div>
             </div>
             <button class="project-toggle" aria-label="Expand project">+</button>
           </div>
           <div class="project-body">
             <div class="project-body-inner">
-              <p>Spearheaded the design and deployment of a QR code-based attendance and data collection system at Eastern Michigan University's Holman Success Center. What began as a two-device pilot tracking study table attendance grew into a campus-wide platform logging over 144,000 scans across dozens of event types — and produced documented academic outcomes.</p>
+              <p>Spearheaded the design and deployment of a QR code-based attendance and data collection system at Eastern Michigan University's Holman Success Center. The platform ran on personal smartphones — staff, students, and volunteers used a purpose-built mobile scanning app on devices they already owned, eliminating the need for dedicated hardware entirely. What began as a two-device pilot grew into a campus-wide system logging over 144,000 scans across dozens of event types — and produced documented academic outcomes.</p>
               <ul class="project-highlights">
-                <li>Scaled from 2 scanning devices to 140 across a 23,000-student campus — covering study tables, Gen Ed events, textbook checkout, tutoring, and supplemental instruction programs</li>
+                <li>Scaled from 2 to 140 active scanning locations using personal mobile phones running a purpose-built app — no dedicated hardware required, enabling flexible deployment anywhere on campus across study tables, Gen Ed events, textbook checkout, tutoring, and supplemental instruction programs</li>
                 <li>Demonstrated measurable GPA improvement for at-risk student-athletes and resulted in two Greek organizations being removed from academic probation</li>
+                <li>Adopted by the EMU Athletic Department to support NCAA Division I academic reporting requirements — providing reliable attendance and engagement data for student-athlete eligibility and compliance tracking</li>
                 <li>Built a QR-coded student ID database, designed validation workflows, and administered the full system end-to-end</li>
                 <li>Recognized by CodeREADr in a published case study — described as "an entrepreneurial graduate assistant" who made the program "enormously successful"</li>
                 <li>Saved the university $250K through an optimized shared reporting system adopted institution-wide as a template</li>
@@ -824,6 +806,38 @@
       document.querySelectorAll('.project-card').forEach(c => c.classList.remove('open'));
       if (!wasOpen) card.classList.add('open');
     }
+  </script>
+
+  <!-- SITE PREVIEW MODAL -->
+  <div id="site-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.82);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+    <div style="position:relative;width:92vw;height:88vh;max-width:1300px;background:#0a0a0a;border-radius:8px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.08);">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.65rem 1rem;background:#111;border-bottom:1px solid rgba(255,255,255,0.07);">
+        <span id="modal-label" style="font-size:0.78rem;color:#888;font-family:monospace;letter-spacing:0.05em;"></span>
+        <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:1.3rem;line-height:1;padding:0.2rem 0.5rem;border-radius:4px;transition:color 0.2s,background 0.2s;" onmouseover="this.style.color='#fff';this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.color='#aaa';this.style.background='none'">✕</button>
+      </div>
+      <iframe id="modal-frame" src="" style="width:100%;height:calc(100% - 42px);border:none;"></iframe>
+    </div>
+  </div>
+
+  <script>
+    function openModal(src, label) {
+      document.getElementById('modal-frame').src = src;
+      document.getElementById('modal-label').textContent = label;
+      const modal = document.getElementById('site-modal');
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+      document.getElementById('site-modal').style.display = 'none';
+      document.getElementById('modal-frame').src = '';
+      document.body.style.overflow = '';
+    }
+    document.getElementById('site-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
   </script>
 </body>
 </html>

@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team401k | 401(k) Plan Oversight & Fiduciary Consulting</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #0d2150;
+      --navy-mid: #163070;
+      --blue-accent: #2458b3;
+      --gold: #c8a84b;
+      --gold-light: #e8c96a;
+      --off-white: #f5f3ee;
+      --warm-gray: #e8e4dc;
+      --text-dark: #1a1a2e;
+      --text-mid: #3d4a6b;
+      --text-light: #8a96b0;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: "Lato", sans-serif; background: var(--off-white); color: var(--text-dark); overflow-x: hidden; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 98;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 60px;
+      background: rgba(13,33,80,0.97); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(200,168,75,0.3);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 14px; cursor: pointer; }
+    .nav-logo-box {
+      background: var(--navy-mid); border: 2px solid var(--gold);
+      padding: 6px 12px; font-family: "Playfair Display", serif;
+      font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: 2px;
+    }
+    .nav-logo-text {
+      font-family: "Lato", sans-serif; font-weight: 300; font-size: 0.9rem;
+      color: rgba(255,255,255,0.85); line-height: 1.3; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .nav-links { display: flex; gap: 32px; list-style: none; align-items: center; }
+    .nav-links a {
+      color: rgba(255,255,255,0.75); text-decoration: none; font-size: 0.82rem;
+      letter-spacing: 1.5px; text-transform: uppercase; transition: color 0.25s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-cta {
+      background: var(--gold); color: var(--navy) !important;
+      padding: 9px 22px !important; font-weight: 700 !important; transition: background 0.25s !important;
+    }
+    .nav-cta:hover { background: var(--gold-light) !important; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(145deg, var(--navy) 0%, var(--navy-mid) 55%, #1a3a80 100%);
+      display: flex; align-items: center; position: relative; overflow: hidden;
+      padding: 140px 60px 100px;
+    }
+    .hero::before {
+      content: ""; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 80% 50%, rgba(36,88,179,0.25) 0%, transparent 70%),
+                  radial-gradient(ellipse 40% 40% at 10% 80%, rgba(200,168,75,0.12) 0%, transparent 60%);
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero-content { position: relative; z-index: 2; max-width: 720px; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 12px; margin-bottom: 32px;
+      opacity: 0; animation: fadeUp 0.7s 0.2s forwards;
+    }
+    .hero-eyebrow-line { width: 40px; height: 1px; background: var(--gold); }
+    .hero-eyebrow-text {
+      font-size: 0.78rem; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gold); font-weight: 700;
+    }
+    .hero h1 {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 700; color: #fff;
+      line-height: 1.1; margin-bottom: 20px;
+      opacity: 0; animation: fadeUp 0.7s 0.35s forwards;
+    }
+    .hero h1 em {
+      font-style: italic; color: var(--gold-light); font-size: 0.72em;
+      font-weight: 400; display: block; margin-top: 10px; line-height: 1.3;
+    }
+    .hero-proof {
+      font-size: 0.85rem; color: rgba(255,255,255,0.55); letter-spacing: 0.5px;
+      margin-bottom: 28px; opacity: 0; animation: fadeUp 0.7s 0.48s forwards;
+    }
+    .hero-proof strong { color: var(--gold-light); font-weight: 700; }
+    .hero-sub {
+      font-size: 1.05rem; color: rgba(255,255,255,0.72); line-height: 1.75;
+      max-width: 580px; margin-bottom: 48px; font-weight: 300;
+      opacity: 0; animation: fadeUp 0.7s 0.5s forwards;
+    }
+    .hero-btns { display: flex; gap: 16px; opacity: 0; animation: fadeUp 0.7s 0.65s forwards; flex-wrap: wrap; }
+
+    .btn-primary {
+      background: var(--gold); color: var(--navy); padding: 15px 36px;
+      font-size: 0.85rem; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; text-decoration: none; transition: all 0.25s;
+      display: inline-block; cursor: pointer; border: none;
+    }
+    .btn-primary:hover {
+      background: var(--gold-light); transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(200,168,75,0.35);
+    }
+    .btn-outline {
+      border: 1px solid rgba(255,255,255,0.35); color: #fff; padding: 15px 36px;
+      font-size: 0.85rem; letter-spacing: 1.5px; text-transform: uppercase;
+      text-decoration: none; transition: all 0.25s; display: inline-block;
+    }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-outline-navy {
+      border: 1px solid var(--navy); color: var(--navy); padding: 13px 32px;
+      font-size: 0.85rem; letter-spacing: 1.5px; text-transform: uppercase;
+      text-decoration: none; transition: all 0.25s; display: inline-block;
+    }
+    .btn-outline-navy:hover { background: var(--navy); color: #fff; }
+
+    /* ── SHARED ── */
+    section { padding: 100px 60px; }
+    .section-label { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .section-label-line { width: 30px; height: 2px; background: var(--gold); }
+    .section-label-text { font-size: 0.73rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+    .section-title { font-family: "Playfair Display", serif; font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 700; color: var(--navy); line-height: 1.15; margin-bottom: 24px; }
+    .section-body { font-size: 1.05rem; color: var(--text-mid); line-height: 1.8; max-width: 600px; }
+
+    /* ── PAIN POINTS ── */
+    .pain-points { background: var(--navy); padding: 100px 60px; position: relative; overflow: hidden; }
+    .pain-points::before {
+      content: ""; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 90% 50%, rgba(36,88,179,0.2) 0%, transparent 60%);
+    }
+    .pain-points-inner { position: relative; z-index: 1; }
+    .pain-points-header { text-align: center; max-width: 640px; margin: 0 auto 60px; }
+    .pain-points-header .section-label { justify-content: center; }
+    .pain-points-header .section-title { color: #fff; }
+    .pain-points-header .section-body { color: rgba(255,255,255,0.6); margin: 0 auto; font-size: 1rem; }
+    .pain-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+    .pain-card {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-top: 3px solid var(--gold); padding: 40px 36px;
+      transition: background 0.3s;
+    }
+    .pain-card:hover { background: rgba(200,168,75,0.08); }
+    .pain-icon { font-size: 1.8rem; margin-bottom: 20px; }
+    .pain-title { font-family: "Playfair Display", serif; font-size: 1.2rem; color: #fff; margin-bottom: 14px; font-weight: 700; }
+    .pain-text { font-size: 0.92rem; color: rgba(255,255,255,0.6); line-height: 1.75; }
+    .pain-cta { text-align: center; margin-top: 52px; }
+
+    /* ── ABOUT ── */
+    .about { background: #fff; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .about-card { background: var(--navy); padding: 50px; position: relative; overflow: hidden; }
+    .about-card::before {
+      content: ""; position: absolute; top: -30px; right: -30px;
+      width: 120px; height: 120px; border: 2px solid var(--gold); opacity: 0.3;
+    }
+    .about-year { font-family: "Playfair Display", serif; font-size: 5rem; font-weight: 900; color: rgba(255,255,255,0.08); line-height: 1; margin-bottom: -20px; }
+    .about-card-content { position: relative; z-index: 1; }
+    .about-card-title { font-family: "Playfair Display", serif; font-size: 1.4rem; color: var(--gold-light); margin-bottom: 16px; }
+    .about-card-text { color: rgba(255,255,255,0.75); font-size: 0.95rem; line-height: 1.8; }
+    .about-accent-box { background: var(--gold); padding: 28px 36px; margin-top: -1px; }
+    .about-accent-box p { font-family: "Playfair Display", serif; font-style: italic; color: var(--navy); font-size: 1rem; line-height: 1.6; }
+
+    /* ── INSIGHTS ── */
+    .insights { background: var(--off-white); }
+    .insights-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 60px; gap: 40px; }
+    .insights-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2px; }
+    .insight-card {
+      background: #fff; padding: 44px 40px; border-top: 3px solid transparent;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    }
+    .insight-card:hover { border-top-color: var(--gold); transform: translateY(-4px); box-shadow: 0 20px 50px rgba(13,33,80,0.1); z-index: 2; }
+    .insight-number { font-family: "Playfair Display", serif; font-size: 3.5rem; font-weight: 900; color: var(--navy); line-height: 1; margin-bottom: 12px; }
+    .insight-number span { font-size: 1.8rem; color: var(--blue-accent); }
+    .insight-title { font-weight: 700; font-size: 0.95rem; color: var(--navy); margin-bottom: 12px; }
+    .insight-text { font-size: 0.9rem; color: var(--text-mid); line-height: 1.7; }
+
+    /* ── OBJECTIVES ── */
+    .objectives { background: var(--navy); padding: 100px 60px; position: relative; overflow: hidden; }
+    .objectives::before { content: ""; position: absolute; top: -60px; right: -60px; width: 340px; height: 340px; border: 1px solid rgba(200,168,75,0.12); border-radius: 50%; }
+    .objectives-inner { display: grid; grid-template-columns: 320px 1fr; gap: 80px; align-items: start; position: relative; z-index: 1; }
+    .objectives-left .section-title { color: #fff; }
+    .objectives-left .section-body { color: rgba(255,255,255,0.55); font-size: 0.95rem; margin-top: 4px; max-width: 100%; }
+    .objectives-right { display: flex; flex-direction: column; gap: 2px; }
+    .objective-item {
+      display: grid; grid-template-columns: 56px 1fr; gap: 24px; align-items: start;
+      padding: 28px 32px; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07); border-left: 3px solid transparent;
+      transition: background 0.3s, border-left-color 0.3s;
+    }
+    .objective-item:hover { background: rgba(200,168,75,0.07); border-left-color: var(--gold); }
+    .obj-number { font-family: "Playfair Display", serif; font-size: 1.6rem; font-weight: 900; color: var(--gold); opacity: 0.5; line-height: 1; padding-top: 3px; }
+    .obj-title { font-weight: 700; font-size: 0.95rem; color: #fff; margin-bottom: 7px; }
+    .obj-text { font-size: 0.87rem; color: rgba(255,255,255,0.5); line-height: 1.7; }
+
+    /* ── GLP APPROACH (Why Different) ── */
+    .approach { background: #fff; padding: 100px 60px; border-top: 5px solid var(--gold); }
+    .approach-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .approach-lead { font-family: "Playfair Display", serif; font-size: 1rem; letter-spacing: 0.5px; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+    .approach-pillars { display: flex; flex-direction: column; gap: 0; }
+    .pillar {
+      padding: 32px 36px; display: flex; align-items: flex-start; gap: 24px;
+      border-left: 3px solid transparent; border-bottom: 1px solid var(--warm-gray);
+      transition: border-left-color 0.3s, background 0.3s;
+    }
+    .pillar:last-child { border-bottom: none; }
+    .pillar:hover { border-left-color: var(--gold); background: var(--off-white); }
+    .pillar-num { font-family: "Playfair Display", serif; font-size: 1.8rem; font-weight: 900; color: var(--warm-gray); line-height: 1; flex-shrink: 0; padding-top: 2px; transition: color 0.3s; }
+    .pillar:hover .pillar-num { color: var(--gold); }
+    .pillar-title { font-weight: 700; font-size: 1rem; color: var(--navy); margin-bottom: 8px; }
+    .pillar-text { font-size: 0.88rem; color: var(--text-mid); line-height: 1.7; }
+
+    /* ── SERVICES ── */
+    .services { background: var(--off-white); }
+    .services-header { text-align: center; max-width: 620px; margin: 0 auto 70px; }
+    .services-header .section-label { justify-content: center; }
+    .services-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 2px; }
+    .service-card { padding: 40px 32px; background: #fff; border-bottom: 3px solid transparent; transition: all 0.3s; }
+    .service-card:hover { background: var(--navy); border-bottom-color: var(--gold); }
+    .service-card:hover .service-title, .service-card:hover .service-text { color: rgba(255,255,255,0.85); }
+    .service-card:hover .service-num { color: rgba(200,168,75,0.5); }
+    .service-num { font-family: "Playfair Display", serif; font-size: 2.5rem; font-weight: 900; color: var(--warm-gray); line-height: 1; margin-bottom: 16px; transition: color 0.3s; }
+    .service-title { font-weight: 700; font-size: 0.95rem; color: var(--navy); margin-bottom: 10px; transition: color 0.3s; }
+    .service-text { font-size: 0.85rem; color: var(--text-mid); line-height: 1.7; transition: color 0.3s; }
+
+    /* ── HEALTH CHECK ── */
+    .health-check { background: var(--navy-mid); padding: 90px 60px; text-align: center; position: relative; overflow: hidden; }
+    .health-check::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 80% at 50% 100%, rgba(200,168,75,0.1) 0%, transparent 60%); }
+    .health-check-inner { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+    .health-check .section-label { justify-content: center; }
+    .health-check .section-title { color: #fff; text-align: center; }
+    .health-check-body { font-size: 1.05rem; color: rgba(255,255,255,0.65); line-height: 1.8; margin-bottom: 16px; }
+    .health-check-items { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin: 36px 0 48px; }
+    .health-check-item { text-align: left; }
+    .health-check-item-check { color: var(--gold); font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; }
+    .health-check-item p { font-size: 0.85rem; color: rgba(255,255,255,0.6); }
+
+    /* ── COMPANIES ── */
+    .companies { background: #fff; }
+    .companies-inner { display: grid; grid-template-columns: 1fr 1.4fr; gap: 80px; align-items: start; }
+    .company-list { display: flex; flex-direction: column; gap: 2px; margin-top: 40px; }
+    .company-item { display: flex; align-items: center; gap: 16px; padding: 18px 24px; background: var(--off-white); border-left: 3px solid transparent; transition: border-color 0.25s; }
+    .company-item:hover { border-left-color: var(--gold); }
+    .company-badge { width: 42px; height: 42px; background: var(--navy); display: flex; align-items: center; justify-content: center; font-family: "Playfair Display", serif; font-weight: 900; font-size: 0.8rem; color: #fff; letter-spacing: 1px; flex-shrink: 0; }
+    .company-name { font-size: 0.88rem; font-weight: 700; color: var(--navy); }
+    .company-type { font-size: 0.75rem; color: var(--text-light); margin-top: 2px; }
+
+    /* ── NICK/TEAM ── */
+    .nick-section { background: var(--off-white); padding: 100px 60px; }
+    .nick-inner { display: grid; grid-template-columns: 1fr 1.1fr; gap: 80px; align-items: start; }
+    .nick-credential-row { display: flex; gap: 2px; margin: 36px 0; }
+    .nick-credential { flex: 1; background: var(--navy); padding: 28px 24px; text-align: center; }
+    .nick-credential-number { font-family: "Playfair Display", serif; font-size: 2rem; font-weight: 900; color: var(--gold-light); line-height: 1; margin-bottom: 8px; }
+    .nick-credential-label { font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.6); line-height: 1.4; }
+    .nick-bio-lead { font-family: "Playfair Display", serif; font-size: 1.25rem; font-style: italic; color: var(--navy); line-height: 1.65; margin-bottom: 24px; border-left: 3px solid var(--gold); padding-left: 24px; }
+    .nick-bio-body { font-size: 1rem; color: var(--text-mid); line-height: 1.85; margin-bottom: 20px; }
+    .nick-bio-personal { font-size: 0.95rem; color: var(--text-light); line-height: 1.8; font-style: italic; border-top: 1px solid var(--warm-gray); padding-top: 20px; margin-top: 8px; }
+    .nick-contact-block { background: #fff; padding: 36px 40px; border-left: 3px solid var(--gold); margin-top: 36px; }
+    .nick-contact-label { font-size: 0.72rem; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 16px; }
+    .nick-contact-name { font-family: "Playfair Display", serif; font-size: 1.6rem; font-weight: 700; color: var(--navy); margin-bottom: 14px; }
+    .nick-contact-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .nick-contact-item a { font-size: 1rem; color: var(--text-mid); text-decoration: none; transition: color 0.2s; }
+    .nick-contact-item a:hover { color: var(--blue-accent); }
+    .nick-btns { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+    /* ── CTA ── */
+    .cta { background: var(--navy); text-align: center; position: relative; overflow: hidden; }
+    .cta::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 50% 80% at 50% 0%, rgba(200,168,75,0.12) 0%, transparent 60%); }
+    .cta-inner { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+    .cta .section-label { justify-content: center; }
+    .cta .section-title { color: #fff; text-align: center; }
+    .cta-body { font-size: 1.1rem; color: rgba(255,255,255,0.65); line-height: 1.75; margin-bottom: 50px; font-style: italic; font-family: "Playfair Display", serif; }
+    .cta-contact { display: inline-flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 40px; }
+    .cta-name { font-family: "Playfair Display", serif; font-size: 1.6rem; font-weight: 700; color: var(--gold-light); }
+    .cta-phone { font-size: 1.2rem; color: #fff; text-decoration: none; letter-spacing: 1px; transition: color 0.2s; }
+    .cta-phone:hover { color: var(--gold); }
+    .cta-details { display: flex; justify-content: center; gap: 40px; margin-top: 8px; flex-wrap: wrap; }
+    .cta-detail { font-size: 0.85rem; color: rgba(255,255,255,0.45); }
+    .cta-detail a { color: var(--gold-light); text-decoration: none; }
+    .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .cta-divider { width: 60px; height: 1px; background: rgba(255,255,255,0.2); margin: 40px auto; }
+
+    /* ── FOOTER ── */
+    footer { background: #060f24; padding: 28px 60px; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .footer-logo-wrap { display: flex; align-items: center; gap: 10px; }
+    .footer-logo-box { background: var(--navy-mid); border: 2px solid var(--gold); padding: 4px 8px; font-family: "Playfair Display", serif; font-size: 1rem; font-weight: 900; color: #fff; letter-spacing: 2px; }
+    .footer-logo-text { font-family: "Lato", sans-serif; font-weight: 300; font-size: 0.75rem; color: rgba(255,255,255,0.6); line-height: 1.3; letter-spacing: 1px; text-transform: uppercase; }
+    .footer-disc { font-size: 0.7rem; color: rgba(255,255,255,0.3); line-height: 1.6; max-width: 620px; text-align: center; }
+    .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.3); white-space: nowrap; }
+
+    /* ── STICKY MOBILE CTA ── */
+    .sticky-cta {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 500;
+      background: var(--gold); padding: 16px 24px; text-align: center;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+    }
+    .sticky-cta a {
+      color: var(--navy); font-weight: 700; font-size: 0.9rem;
+      letter-spacing: 1px; text-transform: uppercase; text-decoration: none;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    .reveal { opacity: 1; transform: none; transition: opacity 0.7s ease, transform 0.7s ease; }
+    .js-ready .reveal { opacity: 0; transform: translateY(30px); }
+    .js-ready .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1000px) {
+      nav { padding: 16px 30px; } .nav-links { gap: 20px; }
+      section { padding: 80px 30px; }
+      .hero { padding: 130px 30px 100px; }
+      .about, .approach-inner, .companies-inner, .nick-inner, .objectives-inner { grid-template-columns: 1fr; gap: 50px; }
+      .insights-grid, .services-grid, .pain-grid, .testi-grid { grid-template-columns: 1fr 1fr; }
+          .insights-header { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .mobile-menu { display: none; }
+      .mobile-menu.open {
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background: #0d2150; z-index: 9999;
+      }
+      .mobile-menu ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 36px; }
+      .mobile-menu ul li { list-style: none; }
+      .mobile-menu ul a { font-family: "Lato", sans-serif; font-size: 1.1rem; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.85); text-decoration: none; display: block; }
+      .mob-cta { background: #c8a84b; color: #0d2150 !important; padding: 14px 44px; font-weight: 700 !important; letter-spacing: 1.5px !important; }
+      .hamburger { display: flex; flex-direction: column; gap: 5px; cursor: pointer; z-index: 99999; padding: 4px; position: relative; }
+      .hamburger span { display: block; width: 26px; height: 2px; background: #fff; transition: all 0.3s; transform-origin: center; }
+      .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+      .hamburger.open span:nth-child(2) { opacity: 0; }
+      .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+      .insights-grid, .services-grid, .pain-grid { grid-template-columns: 1fr; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2.2rem; }
+      .hero-btns, .nick-btns, .cta-btns { flex-direction: column; }
+      footer { flex-direction: column; text-align: center; }
+      .nick-credential-row { flex-direction: column; }
+      .health-check-items { flex-direction: column; align-items: center; }
+      .sticky-cta { display: block; }
+      body { padding-bottom: 60px; }
+    }
+    @media (min-width: 641px) {
+      .hamburger { display: none; }
+      .mobile-menu { display: none !important; }
+    }
+  </style>
+</head>
+<script>
+  function glpScrollTo(id) {
+    var el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function navToggle() {
+    document.getElementById("mobileMenu").classList.toggle("open");
+    document.getElementById("hamburger").classList.toggle("open");
+  }
+  function navClose() {
+    document.getElementById("mobileMenu").classList.remove("open");
+    document.getElementById("hamburger").classList.remove("open");
+  }
+</script>
+<body>
+
+  <!-- STICKY MOBILE CTA -->
+  <div class="sticky-cta">
+    <a href="https://calendly.com/nick-rqi/30min" target="_blank" rel="noopener">&#128197; Schedule Your Free Plan Review — 30 Min, No Obligation</a>
+  </div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo" onclick="glpScrollTo('hero')"">
+      <div class="nav-logo-box">GLP</div>
+      <div class="nav-logo-text">Financial<br>Group</div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#" onclick="glpScrollTo('about');return false;"">About</a></li>
+      <li><a href="#" onclick="glpScrollTo('approach');return false;">Our Difference</a></li>
+      <li><a href="#" onclick="glpScrollTo('services');return false;"">Services</a></li>
+      <li><a href="#" onclick="glpScrollTo('companies');return false;"">Companies</a></li>
+      <li><a href="#" onclick="glpScrollTo('nick');return false;"">Meet the Team</a></li>
+      <li><a href="#" onclick="glpScrollTo('contact');return false;"" class="nav-cta">Request a Review</a></li>
+    </ul>
+    <div class="hamburger" id="hamburger" onclick="navToggle()">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div id="mobileMenu" class="mobile-menu">
+    <ul>
+      <li><a href="#" onclick="glpScrollTo('about');navClose();return false;"">About</a></li>
+      <li><a href="#" onclick="glpScrollTo('approach');navClose();return false;">Our Difference</a></li>
+      <li><a href="#" onclick="glpScrollTo('services');navClose();return false;"">Services</a></li>
+      <li><a href="#" onclick="glpScrollTo('companies');navClose();return false;"">Companies</a></li>
+      <li><a href="#" onclick="glpScrollTo('nick');navClose();return false;"">Meet the Team</a></li>
+      <li><a href="#" onclick="glpScrollTo('contact');navClose();return false;"" class="mob-cta">Request a Review</a></li>
+    </ul>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow" style="display:flex;align-items:center;gap:16px;">
+        <svg width="56" height="56" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+          <rect width="56" height="56" rx="11" fill="#0d2150"/>
+          <line x1="28" y1="38" x2="28" y2="16" stroke="#c8a84b" stroke-width="3" stroke-linecap="round"/>
+          <polyline points="18,26 28,16 38,26" stroke="#c8a84b" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="14" y1="42" x2="42" y2="42" stroke="#c8a84b" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <div style="line-height:1.15;">
+          <div style="font-family:'Lato',sans-serif;font-weight:300;font-size:1.5rem;color:#fff;letter-spacing:-0.5px;">Team</div>
+          <div style="font-family:'Lato',sans-serif;font-weight:800;font-size:1.4rem;color:#c8a84b;letter-spacing:1px;">401k</div>
+        </div>
+      </div>
+      <h1>Retirement Plan Oversight<br><em>For leaders who take fiduciary responsibility seriously.</em></h1>
+      <p class="hero-proof">Trusted by organizations across the country &mdash; <strong>$5B+ in retirement assets managed</strong> over 55+ years.</p>
+      <div class="hero-btns">
+        <a href="#" onclick="glpScrollTo('contact');return false;"" class="btn-primary">Request a 401(k) Plan Review</a>
+        <a href="#" onclick="glpScrollTo('painpoints');return false;" class="btn-outline">See The Problem</a>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- PAIN POINTS -->
+  <section class="pain-points" id="painpoints">
+    <div class="pain-points-inner">
+      <div class="pain-points-header reveal">
+        <div class="section-label">
+          <div class="section-label-line"></div>
+          <span class="section-label-text">Is Your Plan at Risk?</span>
+          <div class="section-label-line"></div>
+        </div>
+        <h2 class="section-title">What Most Plan Sponsors Don&rsquo;t Know &mdash; Until It&rsquo;s Too Late</h2>
+        <p class="section-body">The majority of 401(k) plans have at least one significant problem. Most business leaders don&rsquo;t discover it until they face a DOL audit, a participant complaint, or a lawsuit.</p>
+      </div>
+      <div class="pain-grid">
+        <div class="pain-card reveal">
+          <div class="pain-icon">&#9888;&#65039;</div>
+          <div class="pain-title">You May Be Personally Liable</div>
+          <p class="pain-text">Most plan sponsors don&rsquo;t realize fiduciary exposure is personal &mdash; not just corporate. Under ERISA, ignorance is not a defense. A single oversight can trigger DOL investigations, financial penalties, and personal lawsuits.</p>
+        </div>
+        <div class="pain-card reveal" style="transition-delay:0.1s;">
+          <div class="pain-icon">&#128181;</div>
+          <div class="pain-title">Hidden Fees May Be Erasing the Tax Benefit</div>
+          <p class="pain-text">Approximately 1 in 5 plans carry fees so excessive they fully eliminate the 401(k)&rsquo;s tax advantage for your employees. Most participants have no idea &mdash; and neither does their employer.</p>
+        </div>
+        <div class="pain-card reveal" style="transition-delay:0.2s;">
+          <div class="pain-icon">&#128337;</div>
+          <div class="pain-title">Your Advisor May Be Reactive, Not Proactive</div>
+          <p class="pain-text">Many providers only reach out when there&rsquo;s a problem, rather than proactively managing plan health. By the time you hear from them, the damage may already be done.</p>
+        </div>
+      </div>
+      <div class="pain-cta reveal">
+        <a href="https://calendly.com/nick-rqi/30min" target="_blank" rel="noopener" class="btn-primary">Schedule Your Free Plan Review &mdash; 30 Minutes, No Obligation</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSIGHTS -->
+  <section class="insights" id="insights">
+    <div class="insights-header reveal">
+      <div>
+        <div class="section-label">
+          <div class="section-label-line"></div>
+          <span class="section-label-text">Industry Insights</span>
+        </div>
+        <h2 class="section-title">The Numbers<br>Don&rsquo;t Lie</h2>
+      </div>
+      <p class="section-body" style="max-width:380px;font-size:0.95rem;">Research across 58,000 corporate 401(k) plans reveals a systemic problem that most business owners don&rsquo;t know exists &mdash; until it&rsquo;s too late.</p>
+    </div>
+    <div class="insights-grid">
+      <div class="insight-card reveal">
+        <div class="insight-number">&approx;79<span>%+</span></div>
+        <div class="insight-title">Plans Have Overpriced Funds</div>
+        <p class="insight-text">Nearly 4 in 5 plans contain at least one overpriced fund that could be replaced with a better-performing, lower-cost alternative.</p>
+      </div>
+      <div class="insight-card reveal" style="transition-delay:0.1s;">
+        <div class="insight-number">20<span>%</span></div>
+        <div class="insight-title">Plans Where Fees Erase Tax Benefits</div>
+        <p class="insight-text">Approximately 1 in 5 plans carry fees so excessive that they fully eliminate the tax advantage of participating in a 401(k).</p>
+      </div>
+      <div class="insight-card reveal" style="transition-delay:0.2s;">
+        <div class="insight-number" style="font-size:2.4rem;">Most</div>
+        <div class="insight-title">Participants Don&rsquo;t Know Their Fees</div>
+        <p class="insight-text">Many participants lack awareness of the fees they&rsquo;re paying &mdash; increasing the risk that costs quietly erode their retirement savings over time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HEALTH CHECK COMPACT (top instance) -->
+  <section style="background:#fff;padding:60px 60px;text-align:center;border-top:3px solid var(--gold);">
+    <div style="max-width:780px;margin:0 auto;">
+      <p style="font-size:0.75rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:16px;">No-Cost Plan Health Check</p>
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:var(--navy);margin-bottom:16px;line-height:1.2;">Is Your 401(k) Plan Costing Your Employees More Than It Should?</h3>
+      <p style="font-size:1rem;color:var(--text-mid);line-height:1.75;margin-bottom:32px;max-width:620px;margin-left:auto;margin-right:auto;">In 30 minutes, we'll review your plan's fees, fiduciary exposure, and investment options — and give you an honest, no-obligation assessment of where things stand.</p>
+      <a href="https://calendly.com/nick-rqi/30min" target="_blank" rel="noopener" class="btn-primary" style="font-size:0.9rem;padding:16px 44px;">Schedule Your Free Plan Review &mdash; No Obligation</a>
+    </div>
+  </section>
+
+  <!-- GLP APPROACH -->
+  <section class="approach" id="approach">
+    <div class="approach-inner">
+      <div class="reveal">
+        <div class="section-label">
+          <div class="section-label-line"></div>
+          <span class="section-label-text">Why GLP is Different</span>
+        </div>
+        <h2 class="section-title">A Specialist Team Focused on Fiduciary Process</h2>
+        <p class="section-body" style="margin-bottom:32px;">We don&rsquo;t believe you should set and forget your 401(k). We don&rsquo;t believe your advisor should disappear between problems. And we don&rsquo;t believe a retirement plan exists to serve the advisor &mdash; it exists to serve your employees.</p>
+        <a href="https://calendly.com/nick-rqi/30min" target="_blank" rel="noopener" class="btn-primary">Schedule Your Free Plan Review</a>
+      </div>
+      <div class="approach-pillars reveal" style="transition-delay:0.15s;">
+        <div class="pillar">
+          <div class="pillar-num">01</div>
+          <div>
+            <div class="pillar-title">Plan-First Decision Making</div>
+            <p class="pillar-text">We prioritize what&rsquo;s best for the plan and its participants &mdash; not product sales, not hidden agendas. Every recommendation is made through that lens.</p>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-num">02</div>
+          <div>
+            <div class="pillar-title">A Defined Fiduciary Framework</div>
+            <p class="pillar-text">Our structured process ensures every decision is documented, evaluated, and compliant. You&rsquo;ll always know where you stand and why every decision was made.</p>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-num">03</div>
+          <div>
+            <div class="pillar-title">Ongoing Oversight &mdash; Not Reactive Management</div>
+            <p class="pillar-text">We don&rsquo;t just set it and forget it. Annual participant meetings, continuous plan monitoring, and proactive guidance keep your plan on track year after year.</p>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-num">04</div>
+          <div>
+            <div class="pillar-title">55+ Years of Institutional Knowledge</div>
+            <p class="pillar-text">With over $5 billion in retirement assets managed since 1969, we&rsquo;ve seen virtually every plan structure, fee problem, and fiduciary gap that exists &mdash; and know how to fix them.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OBJECTIVES -->
+  <section class="objectives" id="objectives">
+    <div class="objectives-inner">
+      <div class="objectives-left reveal">
+        <div class="section-label">
+          <div class="section-label-line"></div>
+          <span class="section-label-text">Our Commitment</span>
+        </div>
+        <h2 class="section-title">5 Plan Objectives<br>for Every Client</h2>
+        <p class="section-body">These aren&rsquo;t aspirational talking points &mdash; they are the measurable outcomes we hold ourselves accountable to on every engagement.</p>
+      </div>
+      <div class="objectives-right">
+        <div class="objective-item reveal" style="transition-delay:0.05s;">
+          <div class="obj-number">01</div>
+          <div class="obj-content">
+            <div class="obj-title">Correct Potential Fiduciary Liability Issues</div>
+            <p class="obj-text">Identify and resolve gaps in plan governance, documentation, and fund oversight that expose plan sponsors to legal risk.</p>
+          </div>
+        </div>
+        <div class="objective-item reveal" style="transition-delay:0.12s;">
+          <div class="obj-number">02</div>
+          <div class="obj-content">
+            <div class="obj-title">Ensure Plan Costs Are Consistent With Similar-Sized Plans</div>
+            <p class="obj-text">Benchmark your plan&rsquo;s fees against comparable plans so you can be confident your employees aren&rsquo;t paying more than they should.</p>
+          </div>
+        </div>
+        <div class="objective-item reveal" style="transition-delay:0.19s;">
+          <div class="obj-number">03</div>
+          <div class="obj-content">
+            <div class="obj-title">Increase Transparency</div>
+            <p class="obj-text">Bring full clarity to plan costs, investment options, and performance so sponsors and participants always know exactly where they stand.</p>
+          </div>
+        </div>
+        <div class="objective-item reveal" style="transition-delay:0.26s;">
+          <div class="obj-number">04</div>
+          <div class="obj-content">
+            <div class="obj-title">Increase Employee Retirement Plan Engagement</div>
+            <p class="obj-text">Through education and annual touchpoints, we help employees understand, value, and actively participate in their retirement plan.</p>
+          </div>
+        </div>
+        <div class="objective-item reveal" style="transition-delay:0.33s;">
+          <div class="obj-number">05</div>
+          <div class="obj-content">
+            <div class="obj-title">Establish a Proactive Partnership</div>
+            <p class="obj-text">We don&rsquo;t wait for problems to surface. We stay ahead of regulatory changes, market shifts, and plan needs on your behalf.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="reveal">
+      <div class="about-card">
+        <div class="about-year">1969</div>
+        <div class="about-card-content">
+          <div class="about-card-title">A Different Kind of Partner Since 1969</div>
+          <p class="about-card-text">We built GLP around a simple belief: that every employee deserves a retirement plan that actually works for them &mdash; and every plan sponsor deserves a partner who stands beside them, not just behind a report.</p>
+        </div>
+      </div>
+      <div class="about-accent-box">
+        <p>"Informed plan sponsors make better decisions. We make sure you&rsquo;re never in the dark about your plan."</p>
+      </div>
+    </div>
+    <div class="reveal" style="transition-delay:0.15s;">
+      <div class="section-label">
+        <div class="section-label-line"></div>
+        <span class="section-label-text">Our Track Record</span>
+      </div>
+      <h2 class="section-title">Trusted. Experienced.<br>Accountable.</h2>
+      <p class="section-body">We founded the GLP Family of Companies with one purpose &mdash; to provide people with the knowledge and resources they need to build toward their financial goals.</p>
+      <div style="margin:36px 0;display:flex;flex-direction:column;gap:24px;">
+        <div style="display:flex;align-items:flex-start;gap:20px;">
+          <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--gold);line-height:1;flex-shrink:0;">55+</div>
+          <div>
+            <div style="font-weight:700;font-size:0.95rem;color:var(--navy);margin-bottom:4px;">Years in the Industry</div>
+            <p style="font-size:0.88rem;color:var(--text-mid);line-height:1.65;">GLP has been in this space since 1969 &mdash; through every regulatory shift, market cycle, and industry change. We&rsquo;ve seen virtually every plan structure, fee problem, and fiduciary gap that exists.</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:20px;">
+          <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--gold);line-height:1;flex-shrink:0;">$5B+</div>
+          <div>
+            <div style="font-weight:700;font-size:0.95rem;color:var(--navy);margin-bottom:4px;">In Retirement Assets Managed</div>
+            <p style="font-size:0.88rem;color:var(--text-mid);line-height:1.65;">Not because of flashy marketing &mdash; because plan sponsors trust us to do right by them, year after year.</p>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:20px;">
+          <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--gold);line-height:1;flex-shrink:0;">100s</div>
+          <div>
+            <div style="font-weight:700;font-size:0.95rem;color:var(--navy);margin-bottom:4px;">Of Plans Served Nationwide</div>
+            <p style="font-size:0.88rem;color:var(--text-mid);line-height:1.65;">We serve hundreds of plans and thousands of individual participants &mdash; helping organizations of every size build smarter retirement strategies.</p>
+          </div>
+        </div>
+      </div>
+      <a href="https://calendly.com/nick-rqi/30min" target="_blank" rel="noopener" class="btn-primary">Schedule Your Free Plan Review</a>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="services" id="services">
+    <div class="services-header reveal">
+      <div class="section-label">
+        <div class="section-label-line"></div>
+        <span class="section-label-text">What We Do</span>
+      </div>
+      <h2 class="section-title">Comprehensive Solutions<br>at Every Stage</h2>
+      <p class="section-body" style="margin:0 auto;">We partner with businesses and business owners to create tailored retirement strategies &mdash; no matter where you are in your business journey.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card reveal">
+        <div class="service-num">01</div>
+        <div class="service-title">401(k) Plans &mdash; A Holistic Approach</div>
+        <p class="service-text">Full-spectrum 401(k) plan management, from fund selection and fee benchmarking to participant education and annual reviews.</p>
+      </div>
+      <div class="service-card reveal" style="transition-delay:0.08s;">
+        <div class="service-num">02</div>
+        <div class="service-title">Cash Balance Plans for Owners</div>
+        <p class="service-text">Tax-advantaged defined benefit plans that allow business owners to accelerate retirement savings well beyond standard 401(k) limits.</p>
+      </div>
+      <div class="service-card reveal" style="transition-delay:0.16s;">
+        <div class="service-num">03</div>
+        <div class="service-title">Investment Option Selection</div>
+        <p class="service-text">Rigorous fund evaluation and menu construction &mdash; identifying lower-cost, better-performing options to replace overpriced funds.</p>
+      </div>
+      <div class="service-card reveal" style="transition-delay:0.24s;">
+        <div class="service-num">04</div>
+        <div class="service-title">Retirement Savings Planning</div>
+        <p class="service-text">Individual retirement planning for employees and owners &mdash; building toward long-term financial security at every stage of life.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- NO-COST HEALTH CHECK -->
+  <section class="health-check" id="healthcheck">
+    <div class="health-check-inner">
+      <div class="section-label reveal" style="justify-content:center;">
+        <div class="section-label-line"></div>
+        <span class="section-label-text">Free Plan Health Check</span>
+        <div class="section-label-line"></div>
+      </div>
+      <h2 class="section-title reveal">Find Out If Your Plan<br>Has a Problem &mdash; At No Cost</h2>
+      <p class="health-check-body reveal">In a single 30-minute conversation, our team will review your current plan and give you an honest assessment of where you stand. No sales pitch. No obligation. Just clarity.</p>
+      <div class="health-check-items reveal">
+        <div class="health-check-item">
+          <div class="health-check-item-check">&#10003; Fee Benchmarking</div>
+          <p>Are your plan costs in line with comparable plans?</p>
+        </div>
+        <div class="health-check-item">
+          <div class="health-check-item-check">&#10003; Fiduciary Risk Review</div>
+          <p>Are you exposed to personal liability?</p>
+        </div>
+        <div class="health-check-item">
+          <div class="health-check-item-check">&#10003; Investment Review</div>
+          <p>Are your fund options serving your employees well?</p>
+        </div>
+        <div class="health-check-item">
+          <div class="health-check-item-check">&#10003; Participation Analysis</div>
+          <p>Is your plan actually engaging employees?</p>
+        </div>
+      </div>
+      <div class="reveal">
+        <a href="https://calendly.com/nick-rqi/30min" target="_blank" rel="noopener" class="btn-primary" style="font-size:0.95rem;padding:18px 48px;">Schedule Your Free Plan Review &mdash; 30 Minutes, No Obligation</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPANIES -->
+  <section class="companies" id="companies">
+    <div class="companies-inner">
+      <div class="reveal">
+        <div class="section-label">
+          <div class="section-label-line"></div>
+          <span class="section-label-text">Our Family</span>
+        </div>
+        <h2 class="section-title">The GLP Family<br>of Companies</h2>
+        <p class="section-body">A fully integrated ecosystem of financial services firms &mdash; working together to serve your retirement planning needs from every angle.</p>
+        <div class="company-list">
+          <div class="company-item"><div class="company-badge">GLP</div><div><div class="company-name">GLP Financial Group</div><div class="company-type">Retirement Plan Consulting &amp; Advisory</div></div></div>
+          <div class="company-item"><div class="company-badge">GLP</div><div><div class="company-name">GLP &amp; Associates, Inc.</div><div class="company-type">Insurance &amp; Financial Planning</div></div></div>
+          <div class="company-item"><div class="company-badge aas" style="font-size:0.75rem;">AAS</div><div><div class="company-name">Asset Allocation Strategies, LLC</div><div class="company-type">Registered Investment Advisor</div></div></div>
+          <div class="company-item"><div class="company-badge">GLP</div><div><div class="company-name">GLP Investment Services, LLC</div><div class="company-type">Broker-Dealer &middot; Member FINRA/SIPC</div></div></div>
+          <div class="company-item"><div class="company-badge">GLP</div><div><div class="company-name">GLP Strategic Administrative Group, LLC</div><div class="company-type">Plan Administration &amp; Compliance</div></div></div>
+          <div class="company-item"><div class="company-badge">GLP</div><div><div class="company-name">GLP Foundation</div><div class="company-type">Philanthropic &amp; Community Initiatives</div></div></div>
+        </div>
+      </div>
+      <div class="reveal" style="transition-delay:0.15s;">
+        <div style="background:var(--navy);padding:60px 50px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;border:1px solid rgba(200,168,75,0.3);"></div>
+          <div style="font-family:'Playfair Display',serif;font-size:0.75rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:24px;">Why GLP</div>
+          <h3 style="font-family:'Playfair Display',serif;font-size:1.8rem;color:#fff;margin-bottom:24px;line-height:1.25;">A Partnership Built on Trust and Accountability</h3>
+          <p style="color:rgba(255,255,255,0.65);font-size:0.95rem;line-height:1.85;margin-bottom:30px;">We currently manage over $5 billion in retirement assets &mdash; not because of flashy marketing, but because our clients trust us to do right by them. Year after year.</p>
+          <p style="color:rgba(255,255,255,0.65);font-size:0.95rem;line-height:1.85;margin-bottom:40px;">Our integrated family of companies means you get a unified team across advisory, administration, investment, and insurance &mdash; with no gaps and no finger-pointing.</p>
+          <a href="https://calendly.com/nick-rqi/30min" target="_blank" rel="noopener" class="btn-primary">Schedule a Plan Review</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEET NICK -->
+  <section class="nick-section" id="nick" style="background:var(--off-white);">
+    <div class="nick-inner">
+      <div class="reveal">
+        <div class="section-label"><div class="section-label-line"></div><span class="section-label-text">About Nick</span></div>
+        <h2 class="section-title">Meet Nick Pagano</h2>
+        <div class="nick-credential-row">
+          <div class="nick-credential"><div class="nick-credential-number">30<span style="font-size:1.1rem;">+</span></div><div class="nick-credential-label">Years in Financial Services</div></div>
+          <div class="nick-credential"><div class="nick-credential-number">2x</div><div class="nick-credential-label">Author on Personal Finance</div></div>
+          <div class="nick-credential"><div class="nick-credential-number">100s</div><div class="nick-credential-label">of Clients Served</div></div>
+        </div>
+        <div class="nick-contact-block">
+          <div class="nick-contact-label">Director of Wealth Management &amp; Retirement Services</div>
+          <div class="nick-contact-name">Nick Pagano</div>
+          <div class="nick-contact-item"><span>&#128222;</span><a href="tel:2489390585">(248) 939-0585</a></div>
+          <div class="nick-btns">
+            <a href="/cdn-cgi/l/email-protection#4b252228200b2c273b3c2225386528242674383e29212e283f767f7b7a6320626b1b272a256b192e3d222e3c6b192e3a3e2e383f6d29242f327603226b05222820676b026b3c243e272f6b2722202e6b3f246b3828232e2f3e272e6b2a6b3b272a256b392e3d222e3c65" class="btn-primary">Email Nick</a>
+            <a href="tel:2489390585" class="btn-outline-navy">Call Nick</a>
+          </div>
+        </div>
+      </div>
+      <div class="reveal" style="transition-delay:0.15s;">
+        <div class="nick-bio-lead">"Coached on the hardwood by legendary basketball coach John Wooden, Nick Pagano has spent 30+ years applying those same principles of discipline, preparation, and integrity to the financial lives of hundreds of individuals, businesses, and entrepreneurs."</div>
+        <p class="nick-bio-body">As Director of Wealth Management and Retirement Services at GLP Financial Group, Nick&rsquo;s mission is straightforward &mdash; find plans that aren&rsquo;t working for sponsors or employees, and fix them.</p>
+        <p class="nick-bio-body">A lifelong learner and two-time author on personal finance, Nick brings rare depth to every client engagement. His decades in the industry mean he&rsquo;s seen virtually every plan structure, fee problem, and fiduciary gap that exists &mdash; and knows exactly how to address them.</p>
+        <p class="nick-bio-personal">When Nick isn&rsquo;t fixing retirement plans, you&rsquo;ll find him on the golf course with old friends and new acquaintances &mdash; always making the round more entertaining. He and his wife Janice are proud parents of two grown sons.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MIKE -->
+  <section class="nick-section" id="mike" style="background:#fff;">
+    <div class="nick-inner">
+      <div class="reveal">
+        <div class="section-label"><div class="section-label-line"></div><span class="section-label-text">About Mike</span></div>
+        <h2 class="section-title">Meet Mike McEvilly</h2>
+        <div class="nick-credential-row">
+          <div class="nick-credential"><div class="nick-credential-number">32<span style="font-size:1.1rem;">+</span></div><div class="nick-credential-label">Years in Financial Services</div></div>
+          <div class="nick-credential"><div class="nick-credential-number">1995</div><div class="nick-credential-label">Joined GLP</div></div>
+          <div class="nick-credential"><div class="nick-credential-number">EVP</div><div class="nick-credential-label">Business Development</div></div>
+        </div>
+        <div class="nick-contact-block">
+          <div class="nick-contact-label">Executive Vice President, Business Development</div>
+          <div class="nick-contact-name">Mike McEvilly</div>
+          <div class="nick-contact-item"><span>&#128222;</span><a href="tel:7347488891">(734) 748-8891</a></div>
+          <div class="nick-btns">
+            <a href="/cdn-cgi/l/email-protection#7d101416183d1a110d0a14130e531e1210420e081f17181e0940494d4c5516545d2d111c135d2f180b14180a5d2f180c08180e095b1f1219044035145d30141618515d345d0a120811195d111416185d09125d11181c0f135d10120f185d1c1f1208095d3a312d5d0f1809140f18101813095d0d111c135d0e180f0b141e180e53" class="btn-primary">Contact Mike</a>
+            <a href="tel:7347488891" class="btn-outline-navy">Call Mike</a>
+          </div>
+        </div>
+      </div>
+      <div class="reveal" style="transition-delay:0.15s;">
+        <div class="nick-bio-lead">"With over 32 years in financial services and nearly three decades at GLP, Mike McEvilly brings unmatched institutional knowledge to every client engagement."</div>
+        <p class="nick-bio-body">As Executive Vice President of Business Development, Mike works directly with business leaders to evaluate their retirement plans and assemble the right team of qualified representatives to address each plan&rsquo;s unique needs.</p>
+        <p class="nick-bio-body">His passion is straightforward &mdash; educating people about their financial future and making sure retirement plans actually work for the people they&rsquo;re meant to serve.</p>
+        <p class="nick-bio-personal">Mike and his wife are lifelong residents of Metro Detroit.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONNOR -->
+  <section class="nick-section" id="connor" style="background:var(--off-white);">
+    <div class="nick-inner">
+      <div class="reveal">
+        <div class="section-label"><div class="section-label-line"></div><span class="section-label-text">About Connor</span></div>
+        <h2 class="section-title">Meet Connor Baker</h2>
+        <div class="nick-credential-row">
+          <div class="nick-credential"><div class="nick-credential-number">5<span style="font-size:1.1rem;">+</span></div><div class="nick-credential-label">Years at GLP</div></div>
+          <div class="nick-credential"><div class="nick-credential-number" style="font-size:1.2rem;">&#127939;</div><div class="nick-credential-label">Ironman Athlete</div></div>
+          <div class="nick-credential"><div class="nick-credential-number" style="font-size:1.1rem;">CFP</div><div class="nick-credential-label">Financial Advisor</div></div>
+        </div>
+        <div class="nick-contact-block">
+          <div class="nick-contact-label">Financial Advisor</div>
+          <div class="nick-contact-name">Connor Baker</div>
+          <div class="nick-contact-item"><span>&#128222;</span><a href="tel:5868769903">(586) 876-9903</a></div>
+          <div class="nick-btns">
+            <a href="/cdn-cgi/l/email-protection#5330313238362113343f23243a3d207d303c3e6c202631393630276e153a3d323d303a323f73033f323d3d3a3d34731a3d22263a212a75313c372a6e1b3a73103c3d3d3c217f731a73243c263f37733f3a383673273c733f3632213d733e3c21367332313c2627732a3c262173353a3d323d303a323f73233f323d3d3a3d3473203621253a3036207d" class="btn-primary">Contact Connor</a>
+            <a href="tel:5868769903" class="btn-outline-navy">Call Connor</a>
+          </div>
+        </div>
+      </div>
+      <div class="reveal" style="transition-delay:0.15s;">
+        <div class="nick-bio-lead">"The starting point of any financial conversation should be with you &mdash; your life, your family, your priorities, and your goals."</div>
+        <p class="nick-bio-body">Connor Baker is a Financial Advisor at GLP who has spent the past 5 years dedicated to one thing: helping clients reach their personal, professional, and financial goals &mdash; no matter where they are in life.</p>
+        <p class="nick-bio-body">He listens first, then designs a financial plan from multiple strategies specifically tailored to get you where you want to be.</p>
+        <p class="nick-bio-personal">Outside the office, Connor races sailboats and trains for Ironman triathlons. He and his wife Ella spend their free time with family and friends.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" id="contact">
+    <div class="cta-inner">
+      <div class="section-label reveal" style="justify-content:center;">
+        <div class="section-label-line" style="background:#fff;opacity:0.3;"></div>
+        <span class="section-label-text">Connect Today</span>
+        <div class="section-label-line" style="background:#fff;opacity:0.3;"></div>
+      </div>
+      <h2 class="section-title reveal" style="color:#fff;font-size:clamp(2rem,4vw,3.2rem);">Your Retirement Strategy<br>Deserves Personal Attention</h2>
+      <p class="cta-body reveal">Let&rsquo;s start building a better retirement solution &mdash; together.</p>
+      <div class="cta-contact reveal">
+        <div class="cta-name">Nick Pagano</div>
+        <a href="tel:2489390585" class="cta-phone">(248) 939-0585</a>
+        <div class="cta-details">
+          <span class="cta-detail"><a href="https://glpfinancialgroup.com" target="_blank">glpfinancialgroup.com</a></span>
+          <span class="cta-detail">33335 Grand River Ave, Farmington MI 48336</span>
+        </div>
+      </div>
+      <div class="cta-divider"></div>
+      <div class="cta-btns reveal">
+        <a href="https://calendly.com/nick-rqi/30min" target="_blank" rel="noopener" class="btn-primary" style="font-size:0.9rem;padding:18px 40px;">&#128197; Schedule Your Free Plan Review</a>
+        <a href="tel:2489390585" class="btn-outline" style="font-size:0.9rem;padding:18px 40px;">Call Now</a>
+        <a href="/cdn-cgi/l/email-protection#513f38323a11363d2126383f227f323e3c6e2224333b3432256c656160793a7871013d303f71033427383426710334202434222577333e35286c1938711f38323a7d711871263e243d35713d383a3471253e712232393435243d34713071213d303f712334273834267f" class="btn-outline" style="font-size:0.9rem;padding:18px 40px;">Email Nick</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo-wrap">
+      <div class="footer-logo-box">GLP</div>
+      <div class="footer-logo-text">Financial<br>Group</div>
+    </div>
+    <p class="footer-disc">Securities offered through GLP Investment Services, LLC, Member FINRA/SIPC. Investment advisory services offered through Asset Allocation Strategies, LLC, a Registered Investment Advisor. GLP Investment Services and Asset Allocation Strategies are affiliated firms. Source: Abernathy Daley 401(k) Consultants, 10-Year Analysis of 58,000 Corporate 401(k) Plans, 2025; Ian Ayres &amp; Quinn Curtis, Yale Law Journal; U.S. GAO.</p>

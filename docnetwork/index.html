@@ -539,6 +539,41 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.06);padding:
         </div>
       </div>
 
+      <!-- DND -->
+      <div class="project-card" id="card-dnd">
+        <div class="project-header" onclick="toggleCard('card-dnd')">
+          <div>
+            <div class="project-meta">
+              <span class="project-tag" style="color:#C9A84C;background:rgba(201,168,76,0.1);">Roll for Initiative</span>
+              <span class="project-year">2025 — Built for fun</span>
+            </div>
+            <div class="project-title">D&D Campaign Tracker</div>
+            <div class="project-subtitle">A full AD&D 1e campaign management dashboard — party tracking, combat, spell slots, luck points, and loot. Because ops people build things everywhere.</div>
+          </div>
+          <button class="project-toggle" aria-label="Expand">+</button>
+        </div>
+        <div class="project-body">
+          <div class="project-body-inner">
+            <p>Not every build has a business case. This one started as a weekend project because the spreadsheet my group was using was a disaster. It ended up being a fully tabbed campaign management tool — party health, conditions, spell slots, a luck point system, combat tracker, XP and loot logging, and session notes. Same instinct that drives every other project: see a broken process, build something better.</p>
+            <ul class="project-highlights">
+              <li>Multi-tab interface — Party, Combat, Magic, Luck, XP & Loot, Session Log, and Campaign settings</li>
+              <li>Per-character HP tracking with bloodied/down states, conditions, and full/short rest logic</li>
+              <li>Proprietary Luck Point system with spend/restore controls and visual pip display</li>
+              <li>Full combat tracker with initiative order, round counter, and enemy management</li>
+              <li>JSON export/import so campaign state persists across sessions</li>
+            </ul>
+            <div class="stack-label">Tech Stack</div>
+            <div class="stack-tags">
+              <span class="stack-tag">HTML / CSS / JavaScript</span>
+              <span class="stack-tag">localStorage persistence</span>
+              <span class="stack-tag">AI-Assisted Development</span>
+              <span class="stack-tag">Built for fun</span>
+            </div>
+            <button class="project-link" style="color:#C9A84C;border-bottom-color:rgba(201,168,76,0.4);" onclick="openDND()">Open Campaign Tracker →</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -756,7 +791,18 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.06);padding:
   </div>
 </div>
 
-<!-- GLP DASHBOARD OVERLAY -->
+<!-- DND OVERLAY -->
+<div class="overlay" id="dndOverlay" onclick="closeDNDClick(event)">
+  <div class="lightbox" id="dndLightbox">
+    <div class="lb-toolbar" style="background:#181005;border-bottom:1px solid rgba(201,168,76,0.3);">
+      <span class="lb-toolbar-title" style="color:rgba(201,168,76,0.7);">⚔ AD&D 1e Campaign Tracker — Built for fun</span>
+      <div class="lb-toolbar-right">
+        <button class="lb-close" onclick="closeDND()">✕</button>
+      </div>
+    </div>
+    <iframe class="lb-frame" id="dndFrame" src="" title="D&D Campaign Tracker"></iframe>
+  </div>
+</div>
 <div class="overlay" id="glpOverlay" onclick="closeGLPClick(event)">
   <div class="lightbox" id="glpLightbox">
     <div class="lb-toolbar">
@@ -809,8 +855,23 @@ function closeOverlayClick(e){
 }
 
 document.addEventListener('keydown', e => {
-  if(e.key === 'Escape'){ closeDemo(); closeGLP(); }
+  if(e.key === 'Escape'){ closeDemo(); closeGLP(); closeDND(); }
 });
+
+// ── DnD Campaign Tracker lightbox ──
+function openDND(){
+  document.getElementById('dndFrame').src = 'dnd_dashboard.html';
+  document.getElementById('dndOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDND(){
+  document.getElementById('dndOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  setTimeout(()=>{ document.getElementById('dndFrame').src = ''; }, 300);
+}
+function closeDNDClick(e){
+  if(e.target === document.getElementById('dndOverlay')) closeDND();
+}
 
 // ── GLP Dashboard lightbox ──
 function openGLP(){

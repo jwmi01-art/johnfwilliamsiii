@@ -1,0 +1,509 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>High Net Worth Client — Financial Asset Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#1B2A4A;--gold:#C9A84C;--gold-lt:#F0DFA0;
+  --white:#FFFFFF;--off:#F5F4F0;--gray1:#ECEAE3;--gray2:#B8B4A8;--gray3:#6B6860;--dark:#1A1916;
+  --cash:#185FA5;--ret:#7F77DD;--re:#1D9E75;--pe:#2C3E87;
+  --pers:#D85A30;--oth:#7A7570;--liab:#C0392B;--nw:#1B5E20;--own:#7B2D8B;
+  --r:10px;--r-lg:16px;
+  --shadow:0 12px 48px rgba(27,42,74,.15);--shadow-sm:0 2px 14px rgba(27,42,74,.08);
+}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--off);color:var(--dark);min-height:100vh;font-size:14px;line-height:1.5;}
+.site-header{background:var(--navy);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:200;border-bottom:2px solid var(--gold);}
+.site-header h1{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--gold);letter-spacing:.02em;white-space:nowrap;}
+.header-meta{font-size:10px;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace;letter-spacing:.04em;text-align:right;line-height:1.6;}
+.page{max-width:1600px;margin:0 auto;padding:28px 32px 80px;}
+.kpi-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+.kpi-card{background:var(--white);border-radius:var(--r-lg);padding:18px 22px;box-shadow:var(--shadow-sm);border-left:4px solid transparent;position:relative;overflow:hidden;}
+.kpi-card::before{content:'';position:absolute;top:0;right:0;bottom:0;width:35%;opacity:.04;border-radius:0 var(--r-lg) var(--r-lg) 0;}
+.kpi-card.assets{border-left-color:var(--navy)}.kpi-card.assets::before{background:var(--navy);}
+.kpi-card.liabs{border-left-color:var(--liab)}.kpi-card.liabs::before{background:var(--liab);}
+.kpi-card.nw{border-left-color:var(--nw)}.kpi-card.nw::before{background:var(--nw);}
+.kpi-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gray3);margin-bottom:5px;}
+.kpi-value{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--navy);line-height:1;}
+.kpi-card.liabs .kpi-value{color:var(--liab);}.kpi-card.nw .kpi-value{color:var(--nw);}
+.kpi-sub{font-size:11px;color:var(--gray2);margin-top:5px;}
+.main-grid{display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:start;}
+.chart-card{background:var(--white);border-radius:var(--r-lg);padding:24px 22px 20px;box-shadow:var(--shadow-sm);}
+.chart-card h2{font-family:'Playfair Display',serif;font-size:15px;color:var(--navy);margin-bottom:3px;}
+.chart-sub{font-size:11px;color:var(--gray2);margin-bottom:18px;}
+.chart-wrap{position:relative;width:220px;height:220px;margin:0 auto 18px;}
+.chart-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+.chart-center-label{font-size:9px;color:var(--gray2);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.chart-center-value{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--navy);margin-top:2px;}
+.legend{display:flex;flex-direction:column;gap:5px;}
+.legend-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;cursor:pointer;padding:5px 8px;border-radius:6px;transition:background .15s;}
+.legend-row:hover{background:var(--gray1);}
+.legend-left{display:flex;align-items:center;gap:8px;}
+.legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.legend-right{display:flex;gap:12px;}
+.legend-pct{color:var(--gray3);font-family:'DM Mono',monospace;font-size:10px;min-width:34px;text-align:right;}
+.legend-val{color:var(--dark);font-family:'DM Mono',monospace;font-size:10px;min-width:76px;text-align:right;}
+.buttons-panel{background:var(--white);border-radius:var(--r-lg);padding:24px 22px 20px;box-shadow:var(--shadow-sm);}
+.buttons-panel h2{font-family:'Playfair Display',serif;font-size:15px;color:var(--navy);margin-bottom:3px;}
+.buttons-sub{font-size:11px;color:var(--gray2);margin-bottom:20px;}
+.btn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.asset-btn{display:flex;flex-direction:column;align-items:flex-start;padding:18px 18px 16px;border:none;border-radius:var(--r);cursor:pointer;transition:transform .15s,box-shadow .15s,filter .15s;text-align:left;position:relative;overflow:hidden;min-height:100px;}
+.asset-btn::after{content:'↗';position:absolute;right:10px;top:10px;font-size:13px;opacity:.35;transition:opacity .2s,transform .2s;}
+.asset-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow);filter:brightness(1.07);}
+.asset-btn:hover::after{opacity:.75;transform:translate(2px,-2px);}
+.btn-label{font-size:16px;font-weight:600;color:#fff;line-height:1.3;margin-top:4px;}
+.btn-value{font-family:'DM Mono',monospace;font-size:13px;color:rgba(255,255,255,.7);margin-top:6px;}
+/* Overlay */
+.overlay{position:fixed;inset:0;background:rgba(15,20,35,.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:500;display:flex;align-items:flex-start;justify-content:center;padding:20px 16px;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .22s;}
+.overlay.open{opacity:1;pointer-events:all;}
+/* Lightbox */
+.lightbox{background:var(--white);border-radius:20px;width:100%;max-width:calc(100vw - 32px);margin:auto;display:flex;flex-direction:column;box-shadow:0 32px 100px rgba(0,0,0,.4);transform:translateY(20px) scale(.98);transition:transform .28s cubic-bezier(.34,1.2,.64,1),opacity .22s;opacity:0;overflow:hidden;}
+.overlay.open .lightbox{transform:translateY(0) scale(1);opacity:1;}
+.lb-header{padding:20px 28px 16px;display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;}
+.lb-title-row h2{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--white);}
+.lb-subtitle{font-size:12px;color:rgba(255,255,255,.6);margin-top:3px;}
+.lb-updated{font-size:10px;color:rgba(255,255,255,.45);font-family:'DM Mono',monospace;margin-top:2px;}
+.lb-close{background:rgba(255,255,255,.18);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:16px;transition:background .15s;line-height:1;}
+.lb-close:hover{background:rgba(255,255,255,.3);}
+.lb-summary{display:flex;flex-wrap:wrap;padding:0 28px;flex-shrink:0;border-top:1px solid rgba(255,255,255,.15);border-bottom:1px solid var(--gray1);background:rgba(0,0,0,.08);}
+.lb-stat{padding:12px 28px 12px 0;margin-right:28px;border-right:1px solid rgba(255,255,255,.12);}
+.lb-stat:last-child{border-right:none;}
+.lb-stat-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:rgba(255,255,255,.55);}
+.lb-stat-value{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--white);margin-top:1px;}
+.lb-body{display:flex;gap:0;overflow:visible;flex:1;max-height:62vh;}
+.lb-chart-panel{width:230px;flex-shrink:0;padding:20px 16px 20px 24px;border-right:1px solid var(--gray1);display:flex;flex-direction:column;align-items:center;background:var(--off);}
+.lb-mini-chart-wrap{position:relative;width:160px;height:160px;margin-bottom:16px;}
+.lb-mini-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+.lb-mini-center-label{font-size:8px;color:var(--gray3);text-transform:uppercase;letter-spacing:.07em;font-weight:600;}
+.lb-mini-center-value{font-family:'Playfair Display',serif;font-size:13px;font-weight:700;color:var(--navy);margin-top:1px;}
+.lb-mini-legend{width:100%;display:flex;flex-direction:column;gap:4px;}
+.lb-mini-legend-row{display:flex;align-items:center;font-size:10px;padding:3px 4px;border-radius:4px;}
+.lb-mini-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-right:5px;}
+.lb-mini-name{flex:1;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;}
+.lb-mini-pct{color:var(--gray3);font-family:'DM Mono',monospace;min-width:30px;text-align:right;}
+.lb-table-panel{flex:1;overflow-y:auto;overflow-x:auto;padding:0;max-height:62vh;}
+.lb-table-wrap{padding:0;}
+.lb-table{width:100%;border-collapse:collapse;font-size:13px;padding:0 24px;}
+.lb-table thead th{text-align:left;font-size:9px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--gray3);padding:14px 14px 10px 0;border-bottom:2px solid var(--gray1);white-space:nowrap;position:sticky;top:0;background:var(--white);z-index:2;box-shadow:0 1px 0 var(--gray1);}
+.lb-table thead th.r{text-align:right;padding-left:14px;padding-right:0;}
+.lb-table tbody tr{border-bottom:1px solid var(--gray1);transition:background .1s;}
+.lb-table tbody tr:last-child{border-bottom:none;}
+.lb-table tbody tr:hover{background:var(--off);}
+.lb-table td{padding:12px 14px 12px 0;vertical-align:top;}
+.lb-table td.r{text-align:right;padding-left:14px;padding-right:0;font-family:'DM Mono',monospace;font-size:12px;}
+.holding-inst{font-weight:600;color:var(--dark);font-size:13px;}
+.holding-acct{font-size:11px;color:var(--gray3);margin-top:2px;}
+.holding-titled{font-size:10px;color:var(--own);margin-top:2px;font-weight:500;}
+.holding-bene{font-size:10px;color:var(--gray3);font-style:italic;margin-top:2px;max-width:180px;}
+.split-bar{display:flex;gap:3px;margin-top:5px;height:3px;border-radius:2px;overflow:hidden;}
+.split-seg{height:3px;}
+.vault-tag{display:inline-block;font-size:9px;background:var(--gray1);color:var(--gray3);border-radius:4px;padding:2px 7px;font-family:'DM Mono',monospace;white-space:nowrap;}
+.updated-tag{display:inline-block;font-size:9px;background:#EDF4FF;color:#185FA5;border-radius:4px;padding:2px 7px;font-family:'DM Mono',monospace;}
+.titled-tag{display:inline-block;font-size:9px;background:#F3E8FF;color:#7B2D8B;border-radius:4px;padding:2px 7px;font-family:'DM Mono',monospace;margin-top:3px;}
+.needs-fill{color:#C9A84C;font-style:italic;font-size:11px;}
+.contact-pill{display:inline-block;font-size:10px;background:var(--gray1);color:var(--gray3);border-radius:4px;padding:2px 6px;margin:1px 2px 1px 0;position:relative;cursor:default;}
+.contact-pill:hover .contact-tip{display:block;}
+.contact-tip{display:none;position:absolute;bottom:calc(100% + 5px);left:0;background:var(--navy);color:var(--white);border-radius:6px;padding:8px 10px;font-size:10px;white-space:nowrap;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.25);min-width:160px;line-height:1.7;}
+.contact-tip::after{content:'';position:absolute;top:100%;left:10px;border:5px solid transparent;border-top-color:var(--navy);}
+.contact-tip-row{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.85);}
+.contact-tip-icon{font-size:9px;opacity:.6;flex-shrink:0;}
+/* Ownership lightbox special */
+.own-selector{display:flex;flex-wrap:wrap;gap:8px;padding:16px 28px;border-bottom:1px solid var(--gray1);background:var(--off);}
+.own-btn{padding:6px 16px;border-radius:20px;border:1.5px solid var(--gray1);background:var(--white);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;color:var(--gray3);}
+.own-btn:hover{border-color:var(--own);color:var(--own);}
+.own-btn.active{background:var(--own);color:var(--white);border-color:var(--own);}
+/* lb footer */
+.lb-footer{padding:14px 28px;border-top:1px solid var(--gray1);display:flex;align-items:center;justify-content:space-between;background:var(--off);flex-shrink:0;}
+.lb-footer-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--gray3);}
+.lb-footer-total{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--navy);}
+.lb-footer-splits{font-size:11px;color:var(--gray3);font-family:'DM Mono',monospace;margin-top:2px;}
+/* contacts */
+.ct-section-head{font-size:9px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;padding:14px 0 6px;color:var(--gray3);}
+.ct-needs{color:var(--gold);font-style:italic;}
+/* mobile cards */
+.lb-cards{display:none;padding:16px;flex-direction:column;gap:10px;}
+.lb-card{background:var(--off);border-radius:var(--r);padding:14px 16px;border-left:3px solid var(--gray2);}
+.lb-card-name{font-weight:600;font-size:13px;margin-bottom:2px;}
+.lb-card-sub{font-size:11px;color:var(--gray3);margin-bottom:8px;}
+.lb-card-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
+.lb-card-label{color:var(--gray3);}.lb-card-value{font-family:'DM Mono',monospace;font-weight:500;}
+.lb-card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--gray1);border-radius:3px;}
+.page-footer{text-align:center;font-size:10px;color:var(--gray2);font-family:'DM Mono',monospace;letter-spacing:.05em;margin-top:48px;padding-top:18px;border-top:1px solid var(--gray1);}
+@media(max-width:1100px){.main-grid{grid-template-columns:300px 1fr;}}
+@media(max-width:768px){
+  .site-header{padding:0 16px;height:52px;}.site-header h1{font-size:14px;}.header-meta{display:none;}
+  .page{padding:16px 14px 60px;}.kpi-strip{grid-template-columns:1fr;gap:10px;}.kpi-value{font-size:24px;}
+  .main-grid{grid-template-columns:1fr;}.chart-wrap{width:180px;height:180px;}
+  .btn-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+  .overlay{padding:0;align-items:flex-end;}.lightbox{max-width:100%;border-radius:20px 20px 0 0;max-height:92vh;}
+  .lb-body{flex-direction:column;max-height:none;}
+  .lb-chart-panel{width:100%;border-right:none;border-bottom:1px solid var(--gray1);flex-direction:row;gap:16px;padding:16px 18px;}
+  .lb-mini-chart-wrap{width:110px;height:110px;flex-shrink:0;margin-bottom:0;}
+  .lb-table-wrap{display:none;}.lb-cards{display:flex;}.lb-body{max-height:58vh;}
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>High Net Worth Client — Financial Asset Dashboard</h1>
+  <div class="header-meta">PRIVATE &amp; CONFIDENTIAL<br>AS OF <span id="hdr-date">—</span></div>
+</header>
+<div class="page">
+  <div class="kpi-strip">
+    <div class="kpi-card assets"><div class="kpi-label">Total Assets</div><div class="kpi-value" id="kpi-assets">—</div><div class="kpi-sub" id="kpi-sub">—</div></div>
+    <div class="kpi-card liabs"><div class="kpi-label">Total Liabilities</div><div class="kpi-value" id="kpi-liabs">—</div><div class="kpi-sub">Credit cards · Notes payable · Margin loans</div></div>
+    <div class="kpi-card nw"><div class="kpi-label">Net Worth</div><div class="kpi-value" id="kpi-nw">—</div><div class="kpi-sub">Total assets less all liabilities</div></div>
+  </div>
+  <div class="main-grid">
+    <div class="chart-card">
+      <h2>Asset Allocation</h2>
+      <p class="chart-sub">Click any segment or row to explore</p>
+      <div class="chart-wrap">
+        <canvas id="allocChart"></canvas>
+        <div class="chart-center"><div class="chart-center-label">Net Worth</div><div class="chart-center-value" id="chart-nw">—</div></div>
+      </div>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div class="buttons-panel">
+      <h2>Asset Classes</h2>
+      <p class="buttons-sub">Select any category to view full account detail, contacts &amp; vault references</p>
+      <div class="btn-grid" id="btnGrid"></div>
+    </div>
+  </div>
+</div>
+<div class="overlay" id="overlay" onclick="closeOverlay(event)">
+  <div class="lightbox" id="lightbox">
+    <div class="lb-header" id="lbHeader">
+      <div><div class="lb-title-row"><h2 id="lbTitle"></h2></div><div class="lb-subtitle" id="lbSubtitle"></div><div class="lb-updated" id="lbUpdated"></div></div>
+      <button class="lb-close" onclick="closeLightbox()">✕</button>
+    </div>
+    <div class="lb-summary" id="lbSummary"></div>
+    <div id="lbOwnerSelector" style="display:none"></div>
+    <div class="lb-body" id="lbBody">
+      <div class="lb-chart-panel" id="lbChartPanel">
+        <div class="lb-mini-chart-wrap"><canvas id="lbMiniChart"></canvas>
+          <div class="lb-mini-center"><div class="lb-mini-center-label">Total</div><div class="lb-mini-center-value" id="lbMiniTotal">—</div></div>
+        </div>
+        <div class="lb-mini-legend" id="lbMiniLegend"></div>
+      </div>
+      <div class="lb-table-panel">
+        <div style="padding:0 24px;"><table class="lb-table"><thead id="lbThead"></thead><tbody id="lbTbody"></tbody></table></div>
+        <div class="lb-cards" id="lbCards"></div>
+      </div>
+    </div>
+    <div class="lb-footer" id="lbFooter"></div>
+  </div>
+</div>
+<div class="page-footer">PRIVATE &amp; CONFIDENTIAL &nbsp;·&nbsp; HIGH NET WORTH CLIENT FINANCIAL DASHBOARD &nbsp;·&nbsp; FOR ESTATE PLANNING AND FAMILY USE ONLY — CLIENT NAMES REDACTED &nbsp;·&nbsp; STORE IN SECURE VAULT</div>
+<script>
+const DATA = {"asOf":"Oct 29, 2025","totalAssets":30990000,"totalLiabilities":2011800,"netWorth":28978200,"erikTotal":16938300,"jacqTotal":14051700,"owners":[{"name":"[Client — Spouse 1]"},{"name":"[Client — Spouse 2]"},{}],"classes":[{"id":"cash","label":"Cash & Liquid","icon":"💵","color":"#185FA5","subtitle":"Bank accounts · Brokerage · Cryptocurrency","items":[{"inst":"Bank of America","acct":"Checking / Savings / MMF","fmv":1000000,"erik":500000,"jacq":500000,"updated":"Oct 29, 2025","vault":"Vault Folder #1","titledAs":"[Spouse 1]","beneficiary":"","contacts":[]},{"inst":"JP Morgan Chase","acct":"Banking accounts","fmv":250000,"erik":125000,"jacq":125000,"updated":"Oct 29, 2025","vault":"Vault Folder #2","titledAs":"[Spouse 2]","beneficiary":"","contacts":[]},{"inst":"First Merchants Bank","acct":"Banking accounts","fmv":300000,"erik":150000,"jacq":150000,"updated":"Oct 29, 2025","vault":"Vault Folder #3","titledAs":"[Spouse 1]","beneficiary":"","contacts":[]},{"inst":"Jefferies","acct":"Brokerage account","fmv":1000000,"erik":500000,"jacq":500000,"updated":"Oct 29, 2025","vault":"Vault Folder #4","titledAs":"[Spouse 1]","beneficiary":"","contacts":[]},{"inst":"Goldman Sachs","acct":"Brokerage account","fmv":1450000,"erik":725000,"jacq":725000,"updated":"Oct 29, 2025","vault":"Vault Folder #5","titledAs":"[Spouse 1]","beneficiary":"","contacts":[]},{"inst":"Charles Schwab / GLP","acct":"Advisory account","fmv":25000,"erik":12500,"jacq":12500,"updated":"Oct 29, 2025","vault":"Vault Folder #6","titledAs":"[Spouse 2]","beneficiary":"","contacts":[]},{"inst":"Self-custody / Exchange","acct":"Bitcoin","fmv":150000,"erik":75000,"jacq":75000,"updated":"Oct 29, 2025","vault":"Vault Folder #7 — wallet/exchange access required","titledAs":"[Spouse 1]","beneficiary":"","contacts":[]}],"total":4175000,"erikTotal":2087500,"jacqTotal":2087500,"lastUpdated":"Oct 29, 2025"},{"id":"ret","label":"Retirement","icon":"🎯","color":"#7F77DD","subtitle":"401(k) and IRA accounts","items":[{"inst":"Fidelity Investments","acct":"401(k) — Spouse 2","fmv":100000,"erik":0,"jacq":100000,"updated":"Oct 29, 2025","vault":"Vault Folder #9","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Madison Trust","acct":"IRA — Spouse 1","fmv":15000,"erik":15000,"jacq":0,"updated":"Oct 29, 2025","vault":"Vault Folder #10","titledAs":"","beneficiary":"","contacts":[]},{"inst":"UBS","acct":"IRA — Spouse 1","fmv":100000,"erik":100000,"jacq":0,"updated":"Oct 29, 2025","vault":"Vault Folder #11","titledAs":"","beneficiary":"","contacts":[]}],"total":215000,"erikTotal":115000,"jacqTotal":100000,"lastUpdated":"Oct 29, 2025"},{"id":"re","label":"Real Estate","icon":"🏠","color":"#1D9E75","subtitle":"Investment properties (K-1 entities) · Personal residence","items":[{"inst":"Entity — K-1","acct":"Medical Office","fmv":650000,"erik":432500,"jacq":217500,"updated":"Oct 29, 2025","vault":"Vault Folder #23 — operating agreement, K-1s","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Entity — K-1","acct":"Apartments","fmv":2000000,"erik":1330000,"jacq":670000,"updated":"Oct 29, 2025","vault":"Vault Folder #23","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Entity — K-1","acct":"Senior Living","fmv":400000,"erik":266000,"jacq":134000,"updated":"Oct 29, 2025","vault":"Vault Folder #23","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Entity — K-1","acct":"Dental Office","fmv":150000,"erik":99750,"jacq":50250,"updated":"Oct 29, 2025","vault":"Vault Folder #23 — Note payable $100k","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Entity — K-1","acct":"Industrial","fmv":50000,"erik":33250,"jacq":16750,"updated":"Oct 29, 2025","vault":"Vault Folder #23","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Entity — K-1","acct":"Office","fmv":450000,"erik":299250,"jacq":150750,"updated":"Oct 29, 2025","vault":"Vault Folder #23","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Personal","acct":"Residence — [Primary Residence Address]","fmv":1200000,"erik":600000,"jacq":600000,"updated":"Oct 29, 2025","vault":"Vault Folder #13 — Deed, closing docs","titledAs":"","beneficiary":"","contacts":[]}],"total":4900000,"erikTotal":3060750,"jacqTotal":1839250,"lastUpdated":"Oct 29, 2025"},{"id":"pe","label":"Private Equity","icon":"🏢","color":"#2C3E87","subtitle":"Business interests · Specialty finance · Law firms · All K-1 entities","items":[{"inst":"Credibly","acct":"Specialty finance","fmv":8500000,"erik":4500000,"jacq":4000000,"updated":"Oct 29, 2025","vault":"Vault Folder #24","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Milestone Capital Partners","acct":"Specialty finance","fmv":4500000,"erik":2385000,"jacq":2115000,"updated":"Oct 29, 2025","vault":"Vault Folder #24","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Goldfish Swim Schools","acct":"Operating business","fmv":2250000,"erik":1192500,"jacq":1057500,"updated":"Oct 29, 2025","vault":"Vault Folder #24 — Note payable $1.65M","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Redemption Holding Co.","acct":"Specialty finance","fmv":1750000,"erik":927500,"jacq":822500,"updated":"Oct 29, 2025","vault":"Vault Folder #24","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Ready Life","acct":"Operating business","fmv":1000000,"erik":530000,"jacq":470000,"updated":"Oct 29, 2025","vault":"Vault Folder #24","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Lemon Law Group Partners","acct":"Law firm","fmv":1600000,"erik":848000,"jacq":752000,"updated":"Oct 29, 2025","vault":"Vault Folder #24","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Hega Law","acct":"Law firm","fmv":650000,"erik":344500,"jacq":305500,"updated":"Oct 29, 2025","vault":"Vault Folder #24","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Steadfast Laboratory","acct":"Operating business","fmv":125000,"erik":66250,"jacq":58750,"updated":"Oct 29, 2025","vault":"Vault Folder #24","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Red Oak Capital Partners","acct":"Investment fund","fmv":100000,"erik":53000,"jacq":47000,"updated":"Oct 29, 2025","vault":"Vault Folder #24","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Chapel Oak Capital","acct":"Investment fund","fmv":200000,"erik":106000,"jacq":94000,"updated":"Oct 29, 2025","vault":"Vault Folder #24","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Ready Entertainment","acct":"Operating business","fmv":25000,"erik":13250,"jacq":11750,"updated":"Oct 29, 2025","vault":"Vault Folder #24","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Fast Break","acct":"Operating business","fmv":10000,"erik":5300,"jacq":4700,"updated":"Oct 29, 2025","vault":"Vault Folder #24","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Camargo Mobile Home Finance","acct":"Specialty finance","fmv":50000,"erik":26500,"jacq":23500,"updated":"Oct 29, 2025","vault":"Vault Folder #24","titledAs":"","beneficiary":"","contacts":[]},{"inst":"On Point Warranty","acct":"Operating business","fmv":25000,"erik":13250,"jacq":11750,"updated":"Oct 29, 2025","vault":"Vault Folder #24","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Belle Isle Awning","acct":"Operating business","fmv":300000,"erik":159000,"jacq":141000,"updated":"Oct 29, 2025","vault":"Vault Folder #24","titledAs":"","beneficiary":"","contacts":[]}],"total":21085000,"erikTotal":11170050,"jacqTotal":9914950,"lastUpdated":"Oct 29, 2025"},{"id":"pers","label":"Personal Assets","icon":"👤","color":"#D85A30","subtitle":"Vehicles · Jewelry · Art · Collectibles · Precious metals","items":[{"inst":"Spouse 1","acct":"Vehicle #1","fmv":60000,"erik":60000,"jacq":0,"updated":"Oct 29, 2025","vault":"Vault Folder #14","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Spouse 2","acct":"Vehicle #2","fmv":50000,"erik":0,"jacq":50000,"updated":"Oct 29, 2025","vault":"Vault Folder #15","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Spouse 1","acct":"Vehicle #3","fmv":30000,"erik":30000,"jacq":0,"updated":"Oct 29, 2025","vault":"Vault Folder #16","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Both","acct":"Jewelry","fmv":35000,"erik":15000,"jacq":20000,"updated":"Oct 29, 2025","vault":"Vault Folder #17","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Erik","acct":"Precious Metals","fmv":25000,"erik":25000,"jacq":0,"updated":"Oct 29, 2025","vault":"Vault Folder #18","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Both","acct":"Collectibles","fmv":30000,"erik":15000,"jacq":15000,"updated":"Oct 29, 2025","vault":"Vault Folder #19","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Both","acct":"Art","fmv":20000,"erik":10000,"jacq":10000,"updated":"Oct 29, 2025","vault":"Vault Folder #20","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Both","acct":"Furniture & Clothing","fmv":30000,"erik":15000,"jacq":15000,"updated":"Oct 29, 2025","vault":"Vault Folder #21","titledAs":"","beneficiary":"","contacts":[]}],"total":280000,"erikTotal":170000,"jacqTotal":110000,"lastUpdated":"Oct 29, 2025"},{"id":"oth","label":"Other / Insurance","icon":"🔷","color":"#7A7570","subtitle":"Intellectual property · Energy · Life insurance","items":[{"inst":"AMD / Patent holding","acct":"Intellectual Property","fmv":200000,"erik":200000,"jacq":0,"updated":"Oct 29, 2025","vault":"Vault Folder #25","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Wolverine Coal","acct":"Energy — 25% ownership","fmv":100000,"erik":100000,"jacq":0,"updated":"Oct 29, 2025","vault":"Vault Folder #26","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Northwestern Mutual","acct":"Life Insurance CSV — $1M DB","fmv":35000,"erik":35000,"jacq":0,"updated":"Oct 29, 2025","vault":"Vault Folder #29","titledAs":"","beneficiary":"","contacts":[]}],"total":335000,"erikTotal":335000,"jacqTotal":0,"lastUpdated":"Oct 29, 2025"},{"id":"liab","label":"Liabilities","icon":"📉","color":"#C0392B","subtitle":"Credit cards · Notes payable · Margin loans","isLiability":true,"items":[{"inst":"American Express","acct":"Credit Card","fmv":5000,"erik":5000,"jacq":0,"updated":"Oct 29, 2025","vault":"Vault Folder A","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Capital One","acct":"Credit Card","fmv":4000,"erik":0,"jacq":4000,"updated":"Oct 29, 2025","vault":"Vault Folder B","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Chase","acct":"Credit Card","fmv":2800,"erik":1300,"jacq":1500,"updated":"Oct 29, 2025","vault":"Vault Folder C","titledAs":"","beneficiary":"","contacts":[]},{"inst":"","acct":"Current Portion LTD","fmv":50000,"erik":50000,"jacq":0,"updated":"Oct 29, 2025","vault":"Vault Folder E","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Bank","acct":"Note Payable — Dental","fmv":100000,"erik":100000,"jacq":0,"updated":"Oct 29, 2025","vault":"Vault Folder H","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Bank","acct":"Note Payable — Goldfish","fmv":1650000,"erik":1650000,"jacq":0,"updated":"Oct 29, 2025","vault":"Vault Folder I","titledAs":"","beneficiary":"","contacts":[]},{"inst":"Jefferies/Goldman","acct":"Margin Loan","fmv":200000,"erik":200000,"jacq":0,"updated":"Oct 29, 2025","vault":"Vault Folder J","titledAs":"","beneficiary":"","contacts":[]}],"total":2011800,"erikTotal":2006300,"jacqTotal":5500,"lastUpdated":"Oct 29, 2025"},{"id":"contacts","label":"Contacts","icon":"📞","color":"#1B2A4A","isContacts":true,"sections":[{"heading":"Key Advisors","items":[{"role":"Financial Advisor","name":"","phone":"","email":"","notes":"GLP Financial Group / Charles Schwab"},{"role":"Estate Attorney","name":"","phone":"","email":"","notes":"Wills, trusts, buy-sell agreements"},{"role":"CPA / Tax Advisor","name":"","phone":"","email":"","notes":"All K-1 entities and tax returns"},{"role":"Insurance Agent — NW Mutual","name":"","phone":"","email":"","notes":"Life insurance — $1M death benefit"}]},{"heading":"Banks & Lenders","items":[{"role":"Bank of America — Primary","name":"","phone":"","email":"","notes":"Checking / Savings / MMF — Vault #1"},{"role":"JP Morgan Chase","name":"","phone":"","email":"","notes":"Vault Folder #2"},{"role":"First Merchants","name":"","phone":"","email":"","notes":"Vault Folder #3"},{"role":"Jefferies (brokerage/margin)","name":"","phone":"","email":"","notes":"Margin loan — Vault #4"},{"role":"Goldman Sachs","name":"","phone":"","email":"","notes":"Vault Folder #5"},{"role":"Bank — Goldfish Note Payable","name":"","phone":"","email":"","notes":"$1.65M outstanding — Vault I"},{"role":"Bank — Dental Office Note","name":"","phone":"","email":"","notes":"$100k outstanding — Vault H"}]},{"heading":"Private Equity Key Contacts","items":[{"role":"Credibly — GP Contact","name":"","phone":"","email":"","notes":"Largest holding $8.5M — Vault #24"},{"role":"Milestone Capital Partners","name":"","phone":"","email":"","notes":"$4.5M — Vault #24"},{"role":"Goldfish Swim Schools","name":"","phone":"","email":"","notes":"$2.25M — Vault #24"},{"role":"Lemon Law Group Partners","name":"","phone":"","email":"","notes":"$1.6M — Vault #24"}]},{"heading":"Emergency Access","items":[{"role":"Physical safe / vault — location & combination","name":"","phone":"","email":"","notes":"Keep especially secure"},{"role":"Password manager","name":"","phone":"","email":"","notes":"Master password / emergency kit"},{"role":"Original will & trust location","name":"","phone":"","email":"","notes":"Estate attorney also holds a copy"},{"role":"Estate planning directives","name":"","phone":"","email":"","notes":"Advance directive / POA location"},{"role":"Safe deposit box key","name":"","phone":"","email":"","notes":"Bank name and box number"}]}]},{"id":"ownership","label":"Ownership","icon":"🏛️","color":"#7B2D8B","isOwnership":true}]};
+
+const fmt   = n => n===0?'—':'$'+Math.abs(Math.round(n)).toLocaleString();
+const pctOf = (n,t) => t?(n/t*100).toFixed(1)+'%':'—';
+const assetClasses = DATA.classes.filter(c=>!c.isLiability&&!c.isContacts&&!c.isOwnership);
+
+// Header date
+document.getElementById('hdr-date').textContent = (DATA.asOf||'').toUpperCase();
+
+// KPI
+document.getElementById('kpi-assets').textContent = fmt(DATA.totalAssets);
+document.getElementById('kpi-sub').textContent    = `[Spouse 1]: ${fmt(DATA.erikTotal)}  ·  [Spouse 2]: ${fmt(DATA.jacqTotal)}`;
+document.getElementById('kpi-liabs').textContent  = fmt(DATA.totalLiabilities);
+document.getElementById('kpi-nw').textContent     = fmt(DATA.netWorth);
+document.getElementById('chart-nw').textContent   = '$'+(DATA.netWorth/1e6).toFixed(2)+'M';
+
+// Legend
+const legendEl = document.getElementById('legend');
+assetClasses.forEach(cls=>{
+  const row=document.createElement('div'); row.className='legend-row';
+  row.innerHTML=`<div class="legend-left"><div class="legend-dot" style="background:${cls.color}"></div><span>${cls.label}</span></div><div class="legend-right"><span class="legend-pct">${pctOf(cls.total,DATA.totalAssets)}</span><span class="legend-val">${fmt(cls.total)}</span></div>`;
+  row.onclick=()=>openLightbox(cls.id);
+  legendEl.appendChild(row);
+});
+
+// Buttons
+const btnGrid=document.getElementById('btnGrid');
+DATA.classes.forEach(cls=>{
+  const btn=document.createElement('button'); btn.className='asset-btn'; btn.style.background=cls.color;
+  btn.innerHTML=`<div class="btn-label">${cls.label}</div>${(cls.isContacts||cls.isOwnership)?'':`<div class="btn-value">${fmt(cls.total)}</div>`}`;
+  btn.onclick=()=>openLightbox(cls.id);
+  btnGrid.appendChild(btn);
+});
+
+// Main donut
+const mainChart=new Chart(document.getElementById('allocChart').getContext('2d'),{
+  type:'doughnut',
+  data:{labels:assetClasses.map(c=>c.label),datasets:[{data:assetClasses.map(c=>c.total),backgroundColor:assetClasses.map(c=>c.color),borderColor:'#F5F4F0',borderWidth:3,hoverOffset:10}]},
+  options:{cutout:'62%',responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${fmt(c.raw)}  (${pctOf(c.raw,DATA.totalAssets)})`}}},
+    onClick:(e,els)=>{if(els.length)openLightbox(assetClasses[els[0].index].id);}
+  }
+});
+
+let miniChartInstance=null;
+
+function openLightbox(id){
+  const cls=DATA.classes.find(c=>c.id===id);
+  if(!cls)return;
+  document.getElementById('lbHeader').style.background=cls.color;
+  document.getElementById('lbTitle').textContent=cls.label;
+  document.getElementById('lbSubtitle').textContent=cls.subtitle||'';
+  document.getElementById('lbUpdated').textContent=cls.lastUpdated?`Last updated: ${cls.lastUpdated}`:'';
+  const summary=document.getElementById('lbSummary');
+  summary.innerHTML=''; summary.style.background=cls.color;
+  const ownerSel=document.getElementById('lbOwnerSelector');
+  ownerSel.style.display='none'; ownerSel.innerHTML='';
+  document.getElementById('lbThead').innerHTML='';
+  document.getElementById('lbTbody').innerHTML='';
+  document.getElementById('lbCards').innerHTML='';
+  document.getElementById('lbCards').style.display='';
+  document.getElementById('lbMiniLegend').innerHTML='';
+  const chartPanel=document.getElementById('lbChartPanel');
+
+  if(cls.isOwnership){
+    chartPanel.style.display='none';
+    buildOwnershipView(cls);
+  } else if(cls.isContacts){
+    chartPanel.style.display='none';
+    buildContactsView(cls);
+  } else {
+    chartPanel.style.display='flex';
+    if(!cls.isLiability){
+      [[cls.isLiability?'Total Balance':'Total Value',fmt(cls.total)],
+       ['[Spouse 1]',fmt(cls.erikTotal)],['[Spouse 2]',fmt(cls.jacqTotal)],
+       ['% of Total Assets',pctOf(cls.total,DATA.totalAssets)],
+       ['Holdings',String(cls.items.length)]
+      ].forEach(([l,v])=>{const d=document.createElement('div');d.className='lb-stat';d.innerHTML=`<div class="lb-stat-label">${l}</div><div class="lb-stat-value">${v}</div>`;summary.appendChild(d);});
+    } else {
+      [['Total Balance',fmt(cls.total)],['[Spouse 1]',fmt(cls.erikTotal)],['[Spouse 2]',fmt(cls.jacqTotal)],['Items',String(cls.items.length)]
+      ].forEach(([l,v])=>{const d=document.createElement('div');d.className='lb-stat';d.innerHTML=`<div class="lb-stat-label">${l}</div><div class="lb-stat-value">${v}</div>`;summary.appendChild(d);});
+    }
+    buildMiniChart(cls);
+    buildTableView(cls);
+    buildCardView(cls);
+    buildFooter(cls);
+  }
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function generateShades(hex,count){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return Array.from({length:count},(_,i)=>{
+    const t=count===1?0:i/(count-1);
+    const blend=0.35+t*0.55;
+    return `rgba(${Math.round(r+(255-r)*blend*0.5)},${Math.round(g+(255-g)*blend*0.5)},${Math.round(b+(255-b)*blend*0.5)},${1-t*0.25})`;
+  });
+}
+
+function buildMiniChart(cls){
+  if(miniChartInstance){miniChartInstance.destroy();miniChartInstance=null;}
+  const colors=generateShades(cls.color,cls.items.length);
+  document.getElementById('lbMiniTotal').textContent='$'+(cls.total/1e6>=1?(cls.total/1e6).toFixed(1)+'M':(cls.total/1e3).toFixed(0)+'K');
+  miniChartInstance=new Chart(document.getElementById('lbMiniChart').getContext('2d'),{
+    type:'doughnut',
+    data:{labels:cls.items.map(i=>i.acct||i.inst),datasets:[{data:cls.items.map(i=>i.fmv),backgroundColor:colors,borderColor:'#F5F4F0',borderWidth:2,hoverOffset:6}]},
+    options:{cutout:'55%',responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>` ${fmt(c.raw)}  (${pctOf(c.raw,cls.total)})`}}}}
+  });
+  const leg=document.getElementById('lbMiniLegend');
+  cls.items.forEach((item,i)=>{
+    const row=document.createElement('div');row.className='lb-mini-legend-row';
+    const name=item.acct||item.inst;
+    row.innerHTML=`<div class="lb-mini-dot" style="background:${colors[i]}"></div><span class="lb-mini-name" title="${name}">${name}</span><span class="lb-mini-pct">${pctOf(item.fmv,cls.total)}</span>`;
+    leg.appendChild(row);
+  });
+}
+
+function buildTableView(cls){
+  const thead=document.getElementById('lbThead');
+  const tbody=document.getElementById('lbTbody');
+  const colLabel=cls.isLiability?'Balance':'FMV Total';
+  const tr=document.createElement('tr');
+  ['Institution / Holding','Account / Type',colLabel,'Erik','Jacqueline','Titled As','Beneficiary','Updated','Vault / Notes','Contacts']
+    .forEach((h,i)=>{const th=document.createElement('th');th.textContent=h;if(i>=2&&i<=4)th.classList.add('r');tr.appendChild(th);});
+  thead.appendChild(tr);
+
+  cls.items.forEach(item=>{
+    const tr=document.createElement('tr');
+    const sp=item.fmv>0?Math.round((item.erik||item.ess||0)/item.fmv*100):50;
+    const contacts=item.contacts&&item.contacts.length?
+      item.contacts.map(c=>{
+        const tip=(c.email||c.phone)?`
+          <div class="contact-tip">
+            <div style="font-weight:600;color:#fff;margin-bottom:4px;">${c.name}</div>
+            ${c.email?`<div class="contact-tip-row"><span class="contact-tip-icon">✉</span>${c.email}</div>`:''}
+            ${c.phone?`<div class="contact-tip-row"><span class="contact-tip-icon">✆</span>${c.phone}</div>`:''}
+          </div>`:'';
+        return `<div class="contact-pill">${c.name}${tip}</div>`;
+      }).join('')
+      :'<span class="needs-fill">—</span>';
+    tr.innerHTML=`
+      <td><div class="holding-inst">${item.inst||'—'}</div></td>
+      <td><div class="holding-acct">${item.acct}</div>
+        <div class="split-bar"><div class="split-seg" style="background:${cls.color};width:${sp}%;opacity:.85"></div><div class="split-seg" style="background:${cls.color};width:${100-sp}%;opacity:.22"></div></div>
+      </td>
+      <td class="r">${fmt(item.fmv)}</td>
+      <td class="r">${fmt(item.erik)}</td>
+      <td class="r">${fmt(item.jacq)}</td>
+      <td>${item.titledAs?`<span class="titled-tag">${item.titledAs}</span>`:'<span class="needs-fill">—</span>'}</td>
+      <td style="max-width:160px;font-size:11px;color:var(--gray3);font-style:italic;">${item.beneficiary||'—'}</td>
+      <td><span class="updated-tag">${item.updated||'—'}</span></td>
+      <td><span class="vault-tag">${item.vault}</span></td>
+      <td>${contacts}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function buildCardView(cls){
+  const container=document.getElementById('lbCards');
+  cls.items.forEach(item=>{
+    const card=document.createElement('div');card.className='lb-card';card.style.borderLeftColor=cls.color;
+    const sp=item.fmv>0?Math.round((item.erik||item.ess||0)/item.fmv*100):50;
+    const contacts=item.contacts&&item.contacts.length?item.contacts.map(c=>`<div class="contact-pill" style="display:block;padding:4px 6px;margin-bottom:3px;">${c.name}${c.phone?'<br><span style="opacity:.7;">✆ '+c.phone+'</span>':''}${c.email?'<br><span style="opacity:.7;">✉ '+c.email+'</span>':''}</div>`).join(''):'';
+    card.innerHTML=`
+      <div class="lb-card-name">${item.inst||item.acct}</div>
+      <div class="lb-card-sub">${item.acct}</div>
+      ${item.titledAs?`<div style="font-size:10px;color:var(--own);font-weight:500;margin-bottom:6px;">Titled: ${item.titledAs}</div>`:''}
+      <div class="lb-card-row"><span class="lb-card-label">Total</span><span class="lb-card-value">${fmt(item.fmv)}</span></div>
+      <div class="lb-card-row"><span class="lb-card-label">Erik</span><span class="lb-card-value">${fmt(item.erik)}</span></div>
+      <div class="lb-card-row"><span class="lb-card-label">Jacqueline</span><span class="lb-card-value">${fmt(item.jacq)}</span></div>
+      <div class="split-bar" style="margin:8px 0 4px"><div class="split-seg" style="background:${cls.color};width:${sp}%;opacity:.85;height:4px"></div><div class="split-seg" style="background:${cls.color};width:${100-sp}%;opacity:.22;height:4px"></div></div>
+      <div class="lb-card-tags"><span class="updated-tag">${item.updated||'—'}</span><span class="vault-tag">${item.vault}</span></div>
+      ${contacts?`<div style="margin-top:8px;font-size:11px;">${contacts}</div>`:''}
+      ${item.beneficiary?`<div style="font-size:10px;color:var(--gray3);font-style:italic;margin-top:6px;">${item.beneficiary}</div>`:''}`;
+    container.appendChild(card);
+  });
+}
+
+function buildOwnershipView(cls){
+  // Collect all owners from DATA
+  const owners = DATA.owners||[];
+  const ownerSel=document.getElementById('lbOwnerSelector');
+  ownerSel.style.display='block';
+  ownerSel.className='own-selector';
+
+  // Collect all asset items across all classes
+  const allItems=[];
+  DATA.classes.filter(c=>!c.isContacts&&!c.isOwnership).forEach(c=>{
+    (c.items||[]).forEach(item=>{
+      allItems.push({...item, classLabel:c.label, classColor:c.color});
+    });
+  });
+
+  function showOwner(ownerName){
+    document.querySelectorAll('.own-btn').forEach(b=>b.classList.toggle('active', b.dataset.owner===ownerName));
+    const tbody=document.getElementById('lbTbody');
+    const thead=document.getElementById('lbThead');
+    tbody.innerHTML=''; thead.innerHTML='';
+
+    const tr=document.createElement('tr');
+    ['Asset Class','Institution / Holding','Account / Type','FMV','Vault / Notes'].forEach((h,i)=>{
+      const th=document.createElement('th');th.textContent=h;if(i===3)th.classList.add('r');tr.appendChild(th);
+    });
+    thead.appendChild(tr);
+
+    const filtered=allItems.filter(item=>(item.titledAs||'')===ownerName);
+    let ownerTotal=0;
+    if(filtered.length===0){
+      const tr2=document.createElement('tr');
+      tr2.innerHTML=`<td colspan="5" style="padding:20px;color:var(--gray2);font-style:italic;text-align:center;">No assets titled as "${ownerName}"</td>`;
+      tbody.appendChild(tr2);
+    } else {
+      filtered.forEach(item=>{
+        ownerTotal+=item.fmv||0;
+        const tr2=document.createElement('tr');
+        tr2.innerHTML=`
+          <td><span style="display:inline-block;font-size:9px;padding:2px 7px;border-radius:4px;background:${item.classColor}22;color:${item.classColor};font-weight:600;">${item.classLabel}</span></td>
+          <td><div class="holding-inst">${item.inst||'—'}</div></td>
+          <td><div class="holding-acct">${item.acct}</div></td>
+          <td class="r">${fmt(item.fmv)}</td>
+          <td><span class="vault-tag">${item.vault||'—'}</span></td>`;
+        tbody.appendChild(tr2);
+      });
+    }
+    // Update footer
+    document.getElementById('lbFooter').innerHTML=`
+      <div><div class="lb-footer-label">${ownerName} — Total Assets</div><div class="lb-footer-splits">${filtered.length} asset${filtered.length!==1?'s':''} across ${[...new Set(filtered.map(i=>i.classLabel))].length} class${[...new Set(filtered.map(i=>i.classLabel))].length!==1?'es':''}</div></div>
+      <div class="lb-footer-total">${fmt(ownerTotal)}</div>`;
+  }
+
+  // Build owner buttons
+  if(owners.length===0){
+    ownerSel.innerHTML=`<div style="font-size:12px;color:var(--gray3);font-style:italic;padding:8px 0;">No owners defined yet. Add owners in the Update Tool.</div>`;
+  } else {
+    owners.forEach((owner,i)=>{
+      const btn=document.createElement('button');
+      btn.className='own-btn'+(i===0?' active':'');
+      btn.dataset.owner=owner.name;
+      btn.textContent=owner.name;
+      btn.onclick=()=>showOwner(owner.name);
+      ownerSel.appendChild(btn);
+    });
+    showOwner(owners[0].name);
+  }
+
+  // Summary bar
+  const summary=document.getElementById('lbSummary');
+  summary.style.background=cls.color;
+  const d=document.createElement('div');d.className='lb-stat';
+  d.innerHTML=`<div class="lb-stat-label">Defined Owners</div><div class="lb-stat-value">${owners.length}</div>`;
+  summary.appendChild(d);
+  const d2=document.createElement('div');d2.className='lb-stat';
+  d2.innerHTML=`<div class="lb-stat-label">Total Assets Titled</div><div class="lb-stat-value">${allItems.filter(i=>i.titledAs).length} of ${allItems.length}</div>`;
+  summary.appendChild(d2);
+
+  // Hide mini chart panel
+  document.getElementById('lbChartPanel').style.display='none';
+}
+
+function buildContactsView(cls){
+  const thead=document.getElementById('lbThead');
+  const tbody=document.getElementById('lbTbody');
+  // Build desktop table only — no mobile cards for contacts
+  const tr=document.createElement('tr');
+  ['Role / Institution','Name','Phone','Email','Notes'].forEach(h=>{
+    const th=document.createElement('th');th.textContent=h;tr.appendChild(th);
+  });
+  thead.appendChild(tr);
+  cls.sections.forEach(sec=>{
+    const hr=document.createElement('tr');
+    hr.innerHTML=`<td colspan="5"><div class="ct-section-head" style="color:${cls.color}">${sec.heading}</div></td>`;
+    tbody.appendChild(hr);
+    sec.items.forEach(item=>{
+      const filled=item.name||item.phone||item.email;
+      const tr2=document.createElement('tr');
+      tr2.innerHTML=`
+        <td><div class="holding-inst">${item.role}</div></td>
+        <td class="${filled?'':'ct-needs'}">${item.name||'— to be filled in —'}</td>
+        <td class="${item.phone?'':'ct-needs'}">${item.phone||'—'}</td>
+        <td class="${item.email?'':'ct-needs'}">${item.email||'—'}</td>
+        <td style="color:var(--gray3);font-size:11px;">${item.notes}</td>`;
+      tbody.appendChild(tr2);
+    });
+  });
+  // Ensure cards stay hidden — contacts uses table view only
+  document.getElementById('lbCards').style.display='none';
+  document.getElementById('lbFooter').innerHTML=`<span class="lb-footer-label">⚠ Fields in gold need to be filled in via the Update Tool</span>`;
+}
+
+function buildFooter(cls){
+  if(cls.isContacts||cls.isOwnership)return;
+  const label=cls.isLiability?'Total Liabilities':`${cls.label} — Total`;
+  document.getElementById('lbFooter').innerHTML=`<div><div class="lb-footer-label">${label}</div><div class="lb-footer-splits">[Spouse 1]: ${fmt(cls.erikTotal)}  ·  [Spouse 2]: ${fmt(cls.jacqTotal)}</div></div><div class="lb-footer-total">${fmt(cls.total)}</div>`;
+}
+
+function closeLightbox(){document.getElementById('overlay').classList.remove('open');document.body.style.overflow='';}
+function closeOverlay(e){if(e.target===document.getElementById('overlay'))closeLightbox();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox();});
+</script>
+</body>
+</html>
+

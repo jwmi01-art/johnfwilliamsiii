@@ -534,6 +534,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.06);padding:
               <span class="stack-tag">Formstack</span>
               <span class="stack-tag">Calendly</span>
             </div>
+            <button class="project-link" onclick="openGLP()">Open Live Dashboard Demo →</button>
           </div>
         </div>
       </div>
@@ -547,7 +548,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.06);padding:
   <div class="section-inner">
     <div class="section-header">
       <div class="section-eyebrow">04 — Tech</div>
-      <h2 class="section-title">Their Stack.<br>My Honest Take.</h2>
+      <h2 class="section-title">Your Stack.<br>My Honest Take.</h2>
     </div>
     <p class="stack-intro">I'm not going to overclaim. <em>Here's exactly where I stand</em> on every tool in the job description — and why the gaps are smaller than they look.</p>
 
@@ -740,7 +741,7 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.06);padding:
   <div class="footer-note">Prepared for DocNetwork · Sales Operations Specialist Interview</div>
 </footer>
 
-<!-- DEMO OVERLAY -->
+<!-- ASSET DASHBOARD OVERLAY -->
 <div class="overlay" id="demoOverlay" onclick="closeOverlayClick(event)">
   <div class="lightbox" id="demoLightbox">
     <div class="lb-toolbar">
@@ -752,6 +753,19 @@ footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.06);padding:
       </div>
     </div>
     <iframe class="lb-frame" id="demoFrame" src="" title="Demo"></iframe>
+  </div>
+</div>
+
+<!-- GLP DASHBOARD OVERLAY -->
+<div class="overlay" id="glpOverlay" onclick="closeGLPClick(event)">
+  <div class="lightbox" id="glpLightbox">
+    <div class="lb-toolbar">
+      <span class="lb-toolbar-title">Weekly Production Dashboard — Advisor names anonymized for portfolio use</span>
+      <div class="lb-toolbar-right">
+        <button class="lb-close" onclick="closeGLP()">✕</button>
+      </div>
+    </div>
+    <iframe class="lb-frame" id="glpFrame" src="" title="GLP Dashboard Demo"></iframe>
   </div>
 </div>
 
@@ -795,8 +809,23 @@ function closeOverlayClick(e){
 }
 
 document.addEventListener('keydown', e => {
-  if(e.key === 'Escape') closeDemo();
+  if(e.key === 'Escape'){ closeDemo(); closeGLP(); }
 });
+
+// ── GLP Dashboard lightbox ──
+function openGLP(){
+  document.getElementById('glpFrame').src = 'glp_weekly_dashboard.html';
+  document.getElementById('glpOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeGLP(){
+  document.getElementById('glpOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  setTimeout(()=>{ document.getElementById('glpFrame').src = ''; }, 300);
+}
+function closeGLPClick(e){
+  if(e.target === document.getElementById('glpOverlay')) closeGLP();
+}
 
 // ── Smooth active nav on scroll ──
 const sections = document.querySelectorAll('section[id]');

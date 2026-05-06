@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>John F. Williams III — DocNetwork Sales Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0a0a0a;
+  --paper:#f5f2ed;
+  --accent:#c8401a;
+  --accent2:#1a4fc8;
+  --dn-green:#22B473;
+  --dn-navy:#222B3D;
+  --muted:#6b6560;
+  --border:#d8d4ce;
+  --card:#ffffff;
+  --tag:#edeae5;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);overflow-x:hidden;font-size:15px;line-height:1.6;}
+
+/* ── NOISE ── */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 3rem;background:rgba(245,242,237,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.08em;color:var(--ink);text-decoration:none;}
+.nav-links{display:flex;gap:2rem;list-style:none;}
+.nav-links a{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;}
+.nav-links a:hover{color:var(--ink);}
+.nav-cta{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;padding:.55rem 1.25rem;background:var(--dn-navy);color:#fff;border-radius:4px;text-decoration:none;transition:background .2s;}
+.nav-cta:hover{background:var(--dn-green);}
+
+/* ── HERO ── */
+#hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;padding-top:72px;position:relative;}
+.hero-left{display:flex;flex-direction:column;justify-content:center;padding:5rem 3rem;}
+.hero-eyebrow{font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:var(--accent);margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem;}
+.hero-eyebrow::before{content:'';display:block;width:40px;height:1px;background:var(--accent);}
+.hero-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,7vw,6.5rem);line-height:.92;letter-spacing:.02em;margin-bottom:1.5rem;}
+.hero-name span{color:var(--accent);}
+.hero-desc{font-family:'Instrument Serif',serif;font-size:1.2rem;line-height:1.65;color:var(--muted);max-width:460px;margin-bottom:2rem;}
+.hero-desc em{color:var(--ink);font-style:italic;}
+.hero-actions{display:flex;gap:.75rem;flex-wrap:wrap;}
+.btn-primary{display:inline-flex;align-items:center;gap:.6rem;padding:.85rem 1.75rem;background:var(--dn-navy);color:#fff;font-size:.78rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border-radius:4px;transition:background .2s;}
+.btn-primary:hover{background:var(--dn-green);}
+.btn-outline{display:inline-flex;align-items:center;gap:.6rem;padding:.85rem 1.75rem;border:1.5px solid var(--ink);color:var(--ink);font-size:.78rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border-radius:4px;transition:all .2s;}
+.btn-outline:hover{background:var(--ink);color:var(--paper);}
+.hero-right{background:var(--dn-navy);display:flex;flex-direction:column;justify-content:flex-end;padding:4rem 3rem;position:relative;overflow:hidden;}
+.hero-right-bg{position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent,transparent 40px,rgba(255,255,255,.015) 40px,rgba(255,255,255,.015) 41px);}
+.hero-right-accent{position:absolute;top:-80px;right:-80px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(34,180,115,.12) 0%,transparent 70%);}
+.hero-tagline{font-family:'Instrument Serif',serif;font-size:1.5rem;color:rgba(245,242,237,.9);line-height:1.4;margin-bottom:2.5rem;position:relative;z-index:1;}
+.hero-tagline em{color:var(--dn-green);font-style:italic;}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:2px;position:relative;z-index:1;}
+.stat-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:1.6rem 1.4rem;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:var(--dn-green);line-height:1;margin-bottom:.3rem;}
+.stat-label{font-size:.72rem;color:rgba(245,242,237,.5);letter-spacing:.07em;line-height:1.4;}
+
+/* ── SECTION BASE ── */
+section{position:relative;z-index:1;}
+.section-inner{max-width:1200px;margin:0 auto;padding:6rem 3rem;}
+.section-header{margin-bottom:3.5rem;}
+.section-eyebrow{font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem;display:flex;align-items:center;gap:.75rem;}
+.section-eyebrow::before{content:'';display:block;width:32px;height:1px;background:var(--accent);}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,4.5vw,3.8rem);line-height:1;letter-spacing:.02em;}
+
+/* ── ABOUT DOCNETWORK ── */
+#about-dn{background:var(--dn-navy);}
+#about-dn .section-title{color:#fff;}
+#about-dn .section-eyebrow{color:var(--dn-green);}
+#about-dn .section-eyebrow::before{background:var(--dn-green);}
+.dn-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;}
+.dn-body p{font-family:'Instrument Serif',serif;font-size:1.1rem;line-height:1.75;color:rgba(245,242,237,.8);margin-bottom:1.1rem;}
+.dn-body p em{color:var(--dn-green);font-style:italic;}
+.dn-body p strong{color:#fff;font-style:normal;}
+.dn-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.dn-stat{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-top:3px solid var(--dn-green);padding:1.25rem 1.1rem;border-radius:2px;}
+.dn-stat-num{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--dn-green);line-height:1;margin-bottom:.3rem;}
+.dn-stat-label{font-size:.72rem;color:rgba(245,242,237,.5);letter-spacing:.06em;line-height:1.4;}
+.dn-pitch{margin-top:2rem;padding:1.5rem 1.75rem;background:rgba(34,180,115,.08);border-left:3px solid var(--dn-green);border-radius:0 4px 4px 0;}
+.dn-pitch-label{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dn-green);font-weight:500;margin-bottom:.6rem;}
+.dn-pitch p{font-size:.9rem;color:rgba(245,242,237,.75);line-height:1.7;font-family:'DM Sans',sans-serif;}
+.dn-pitch strong{color:rgba(245,242,237,.95);}
+
+/* ── ROLE MAPPING ── */
+#mapping{background:var(--paper);}
+.mapping-intro{font-family:'Instrument Serif',serif;font-size:1.15rem;line-height:1.7;color:var(--muted);max-width:680px;margin-bottom:3rem;}
+.mapping-intro em{color:var(--ink);font-style:italic;}
+.map-grid{display:flex;flex-direction:column;gap:2px;}
+.map-row{display:grid;grid-template-columns:1fr 40px 1fr;gap:0;background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:box-shadow .2s;}
+.map-row:hover{box-shadow:0 4px 24px rgba(0,0,0,.07);}
+.map-cell{padding:1.5rem 1.75rem;}
+.map-cell-req{border-right:1px solid var(--border);}
+.map-cell-arrow{display:flex;align-items:center;justify-content:center;background:var(--tag);color:var(--dn-green);font-size:1rem;font-weight:700;}
+.map-label{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;margin-bottom:.5rem;}
+.map-label-req{color:var(--dn-navy);}
+.map-label-exp{color:var(--dn-green);}
+.map-req-text{font-size:.88rem;color:var(--ink);line-height:1.55;}
+.map-exp-text{font-size:.88rem;color:var(--muted);line-height:1.55;}
+.map-exp-text strong{color:var(--ink);font-weight:500;}
+.map-tag{display:inline-block;font-size:.68rem;padding:.2rem .6rem;border-radius:2px;margin-top:.6rem;letter-spacing:.04em;}
+.tag-direct{background:#e8f9f2;color:#0d6e44;}
+.tag-transfer{background:#fff3e8;color:#8a4a0d;}
+.tag-building{background:#e8eeff;color:#1a3fa0;}
+
+/* ── PROJECTS ── */
+#projects{background:var(--ink);}
+#projects .section-title{color:var(--paper);}
+#projects .section-eyebrow{color:var(--accent);}
+#projects .section-eyebrow::before{background:var(--accent);}
+.projects-grid{display:flex;flex-direction:column;gap:2px;}
+.project-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:4px;overflow:hidden;transition:box-shadow .3s;}
+.project-card:hover{box-shadow:0 8px 40px rgba(0,0,0,.3);}
+.project-header{display:grid;grid-template-columns:1fr auto;align-items:start;gap:1rem;padding:1.75rem 2rem;cursor:pointer;user-select:none;}
+.project-meta{display:flex;align-items:center;gap:.85rem;margin-bottom:.6rem;}
+.project-tag{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dn-green);background:rgba(34,180,115,.1);padding:.2rem .6rem;border-radius:2px;}
+.project-year{font-size:.72rem;color:rgba(245,242,237,.35);letter-spacing:.05em;}
+.project-title{font-family:'Bebas Neue',sans-serif;font-size:1.85rem;letter-spacing:.03em;line-height:1;color:var(--paper);margin-bottom:.4rem;}
+.project-subtitle{font-size:.88rem;color:rgba(245,242,237,.45);line-height:1.5;}
+.project-toggle{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s,transform .3s;flex-shrink:0;margin-top:.2rem;font-size:1.1rem;color:var(--paper);}
+.project-card.open .project-toggle{background:var(--dn-green);color:#fff;transform:rotate(45deg);}
+.project-body{max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.16,1,.3,1);}
+.project-card.open .project-body{max-height:2000px;}
+.project-body-inner{padding:0 2rem 2rem;border-top:1px solid rgba(255,255,255,.06);padding-top:1.75rem;}
+.project-body-inner p{font-family:'Instrument Serif',serif;font-size:1rem;line-height:1.7;color:rgba(245,242,237,.55);margin-bottom:1.25rem;}
+.project-highlights{margin-bottom:1.5rem;}
+.project-highlights li{font-size:.87rem;color:rgba(245,242,237,.75);line-height:1.6;padding:.35rem 0 .35rem 1.25rem;position:relative;border-bottom:1px solid rgba(255,255,255,.04);}
+.project-highlights li::before{content:'→';position:absolute;left:0;color:var(--dn-green);font-size:.72rem;}
+.stack-label{font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(245,242,237,.3);margin-bottom:.5rem;}
+.stack-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem;}
+.stack-tag{font-size:.72rem;padding:.22rem .62rem;background:rgba(255,255,255,.06);color:rgba(245,242,237,.65);border-radius:2px;letter-spacing:.03em;}
+.project-link{display:inline-flex;align-items:center;gap:.5rem;font-size:.78rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--dn-green);text-decoration:none;border-bottom:1px solid rgba(34,180,115,.4);padding-bottom:.1rem;transition:gap .2s,border-color .2s;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.project-link:hover{gap:.75rem;border-bottom-color:var(--dn-green);}
+
+/* ── STACK COMPARISON ── */
+#stack{background:var(--paper);}
+.stack-intro{font-family:'Instrument Serif',serif;font-size:1.1rem;line-height:1.7;color:var(--muted);max-width:600px;margin-bottom:3rem;}
+.stack-intro em{color:var(--ink);font-style:italic;}
+.stack-compare{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.stack-col{background:var(--card);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.stack-col-head{padding:1.1rem 1.5rem;display:flex;align-items:center;gap:.75rem;}
+.stack-col-head-dn{background:var(--dn-navy);}
+.stack-col-head-me{background:var(--ink);}
+.stack-col-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.06em;color:#fff;}
+.stack-col-sub{font-size:.7rem;color:rgba(255,255,255,.4);margin-top:.1rem;}
+.stack-items{padding:.5rem 0;}
+.stack-item{display:grid;grid-template-columns:1fr auto;align-items:center;gap:.75rem;padding:.85rem 1.5rem;border-bottom:1px solid var(--border);}
+.stack-item:last-child{border-bottom:none;}
+.stack-item-name{font-size:.88rem;color:var(--ink);font-weight:500;}
+.stack-item-sub{font-size:.75rem;color:var(--muted);margin-top:.15rem;}
+.confidence{display:flex;align-items:center;gap:4px;}
+.conf-dot{width:8px;height:8px;border-radius:50%;}
+.conf-full{background:var(--dn-green);}
+.conf-mid{background:#f0a500;}
+.conf-low{background:var(--border);}
+.conf-label{font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;}
+.conf-label-high{color:var(--dn-green);}
+.conf-label-mid{color:#c07800;}
+.conf-label-low{color:var(--muted);}
+.stack-legend{display:flex;gap:1.5rem;margin-top:1.5rem;padding:1rem 1.5rem;background:var(--tag);border-radius:4px;}
+.legend-item{display:flex;align-items:center;gap:.4rem;font-size:.72rem;color:var(--muted);}
+
+/* ── WHY DOCNETWORK ── */
+#why{background:var(--dn-navy);}
+#why .section-title{color:#fff;}
+#why .section-eyebrow{color:var(--dn-green);}
+#why .section-eyebrow::before{background:var(--dn-green);}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.why-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-top:3px solid var(--dn-green);padding:2rem 1.75rem;border-radius:2px;}
+.why-num{font-family:'Bebas Neue',sans-serif;font-size:3rem;color:rgba(34,180,115,.2);line-height:1;margin-bottom:.75rem;}
+.why-title{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;letter-spacing:.04em;color:#fff;margin-bottom:.75rem;}
+.why-body{font-size:.88rem;color:rgba(245,242,237,.55);line-height:1.7;}
+.why-body em{color:var(--dn-green);font-style:normal;}
+
+/* ── CLOSING ── */
+#closing{background:var(--paper);}
+.closing-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;}
+.closing-left .section-title{margin-bottom:1.25rem;}
+.closing-left p{font-family:'Instrument Serif',serif;font-size:1.1rem;color:var(--muted);line-height:1.75;margin-bottom:1.75rem;}
+.closing-left p em{color:var(--ink);font-style:italic;}
+.closing-links{display:flex;flex-direction:column;gap:.75rem;}
+.closing-link{display:flex;align-items:center;gap:.75rem;font-size:.82rem;color:var(--muted);text-decoration:none;transition:color .2s;}
+.closing-link:hover{color:var(--ink);}
+.closing-link-icon{width:32px;height:32px;background:var(--tag);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;transition:background .2s;}
+.closing-link:hover .closing-link-icon{background:var(--dn-green);color:#fff;}
+.closing-right{background:var(--dn-navy);border-radius:4px;padding:2.5rem;}
+.closing-detail{margin-bottom:1.5rem;}
+.closing-detail-label{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(245,242,237,.3);margin-bottom:.3rem;}
+.closing-detail-value{font-size:.95rem;color:rgba(245,242,237,.85);}
+.closing-detail-value a{color:var(--dn-green);text-decoration:none;}
+
+/* ── DEMO LIGHTBOX ── */
+.overlay{position:fixed;inset:0;background:rgba(5,8,15,.85);backdrop-filter:blur(8px);z-index:500;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .22s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.lightbox{background:#fff;border-radius:12px;width:100%;max-width:1300px;margin:auto;box-shadow:0 32px 100px rgba(0,0,0,.5);transform:translateY(16px) scale(.99);transition:transform .28s cubic-bezier(.34,1.2,.64,1),opacity .22s;opacity:0;overflow:hidden;}
+.overlay.open .lightbox{transform:translateY(0) scale(1);opacity:1;}
+.lb-toolbar{background:var(--dn-navy);padding:.9rem 1.5rem;display:flex;align-items:center;justify-content:space-between;}
+.lb-toolbar-title{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.5);}
+.lb-toolbar-right{display:flex;align-items:center;gap:.75rem;}
+.lb-tab{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;padding:.4rem .9rem;border-radius:3px;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);background:none;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.lb-tab.active{background:var(--dn-green);border-color:var(--dn-green);color:#fff;}
+.lb-close{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;font-size:.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.lb-close:hover{background:rgba(255,255,255,.25);}
+.lb-frame{width:100%;height:82vh;border:none;display:block;}
+
+/* ── FOOTER ── */
+footer{background:var(--ink);border-top:1px solid rgba(255,255,255,.06);padding:1.5rem 3rem;display:flex;align-items:center;justify-content:space-between;}
+.footer-name{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;color:rgba(245,242,237,.35);}
+.footer-note{font-size:.72rem;color:rgba(245,242,237,.2);letter-spacing:.05em;}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.hero-eyebrow{animation:fadeUp .6s ease both;animation-delay:.1s;}
+.hero-name{animation:fadeUp .6s ease both;animation-delay:.2s;}
+.hero-desc{animation:fadeUp .6s ease both;animation-delay:.3s;}
+.hero-actions{animation:fadeUp .6s ease both;animation-delay:.4s;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  nav{padding:1rem 1.5rem;}
+  .nav-links{display:none;}
+  #hero{grid-template-columns:1fr;}
+  .hero-right{min-height:300px;}
+  .hero-left{padding:3rem 1.5rem;}
+  .dn-grid,.closing-grid,.stack-compare,.why-grid{grid-template-columns:1fr;}
+  .map-row{grid-template-columns:1fr;}.map-cell-arrow{display:none;}
+  .section-inner{padding:4rem 1.5rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">JFW</a>
+  <ul class="nav-links">
+    <li><a href="#about-dn">DocNetwork</a></li>
+    <li><a href="#mapping">The Role</a></li>
+    <li><a href="#projects">Work</a></li>
+    <li><a href="#stack">Tech</a></li>
+    <li><a href="#why">Why</a></li>
+  </ul>
+  <a href="https://johnfwilliamsiii.com" target="_blank" class="nav-cta">Full Portfolio ↗</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Sales Operations Specialist · DocNetwork</div>
+    <h1 class="hero-name">John<br><span>F.</span><br>Williams<br><span>III</span></h1>
+    <p class="hero-desc">I research the way I work — <em>by building something.</em> This site is the research. What you're looking at is what I'd bring to your sales ops team on day one.</p>
+    <div class="hero-actions">
+      <a href="#mapping" class="btn-primary">See the Role Mapped →</a>
+      <a href="#projects" class="btn-outline">View My Work</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-right-bg"></div>
+    <div class="hero-right-accent"></div>
+    <p class="hero-tagline">From <em>broken process</em><br>to <em>working system</em> — end to end.</p>
+    <div class="hero-stats">
+      <div class="stat-card">
+        <div class="stat-num">99%</div>
+        <div class="stat-label">Reduction in reporting verification time at GLP Financial</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">60%+</div>
+        <div class="stat-label">Production growth supported over tenure ($250M → $400M+)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">20+</div>
+        <div class="stat-label">Years building systems across financial services, SaaS & higher ed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">$250K</div>
+        <div class="stat-label">Saved through reporting system redesign at Eastern Michigan University</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DOCNETWORK -->
+<section id="about-dn">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-eyebrow">01 — The Company</div>
+      <h2 class="section-title">Why DocNetwork<br>Is the Real Deal</h2>
+    </div>
+    <div class="dn-grid">
+      <div class="dn-body">
+        <p>DocNetwork is the <em>only camp management platform with a fully integrated EHR system</em> — covering health records, registration, medication tracking, emergency response, and behavioral health in one place. The flagship products, <strong>CampDoc</strong> and <strong>SchoolDoc</strong>, serve 1,000+ organizations across camps, YMCAs, K–12 schools, universities, and child care centers worldwide.</p>
+        <p>Founded in 2009 by Dr. Michael Ambrose in Ann Arbor, MI, the company holds the only triple-certification in the space — <strong>HIPAA, FERPA, and SOC 2 Type 2</strong> — a non-negotiable for any organization handling children's protected health data. They're ranked #1 on G2 for camp management software and are a 10× recipient of SPARK's FastTrack Award for Ann Arbor's fastest-growing companies.</p>
+        <p>The growth trajectory is real. Revenue is estimated at $50–100M, they've expanded into behavioral health modules and strategic partnerships, and <em>sales headcount is actively growing</em> — which is where this role sits.</p>
+        <div class="dn-pitch">
+          <div class="dn-pitch-label">Elevator Pitch</div>
+          <p>DocNetwork keeps kids healthy and safe while they're away from home — and does it with <strong>the only purpose-built EHR platform in the youth program market</strong>. The mission is real, the market position is defensible, and the growth curve is steep. That's a combination worth showing up for.</p>
+        </div>
+      </div>
+      <div>
+        <div class="dn-stats">
+          <div class="dn-stat"><div class="dn-stat-num">1,000+</div><div class="dn-stat-label">Global clients across camps, schools & child care</div></div>
+          <div class="dn-stat"><div class="dn-stat-num">95%</div><div class="dn-stat-label">Faster emergency response times reported by clients</div></div>
+          <div class="dn-stat"><div class="dn-stat-num">97.9%</div><div class="dn-stat-label">Family satisfaction rate across CampDoc-powered programs</div></div>
+          <div class="dn-stat"><div class="dn-stat-num">5–10<span style="font-size:1.1rem"> hrs</span></div><div class="dn-stat-label">Saved per week by camp staff during peak season</div></div>
+          <div class="dn-stat" style="grid-column:span 2;"><div class="dn-stat-num" style="font-size:1.5rem">HIPAA · FERPA · SOC 2</div><div class="dn-stat-label">Only camp software with all three certifications — sets DocNetwork apart on every enterprise deal</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROLE MAPPING -->
+<section id="mapping">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-eyebrow">02 — The Role</div>
+      <h2 class="section-title">What You Need.<br>What I Bring.</h2>
+    </div>
+    <p class="mapping-intro">Every responsibility in the job description maps to something I've <em>actually built or done</em>. The tools aren't always identical — but the thinking always is.</p>
+
+    <div class="map-grid">
+
+      <div class="map-row">
+        <div class="map-cell map-cell-req">
+          <div class="map-label map-label-req">DocNetwork Needs</div>
+          <div class="map-req-text">Maintain and optimize the sales tech stack — Salesforce, Gong, SmartLead, Sendspark — ensuring clean data and seamless integration</div>
+        </div>
+        <div class="map-cell-arrow">→</div>
+        <div class="map-cell">
+          <div class="map-label map-label-exp">My Experience</div>
+          <div class="map-exp-text">Built and administered a <strong>5-table Airtable CRM</strong> from scratch for K12 Retirement Planning — including multi-step Make.com automation with webhook/JSON parsing. Administered Salesforce-adjacent platforms at GLP Financial across 130+ advisors. The architecture thinking is identical; the logo on the login screen is different.</div>
+          <span class="map-tag tag-transfer">Transferable</span>
+        </div>
+      </div>
+
+      <div class="map-row">
+        <div class="map-cell map-cell-req">
+          <div class="map-label map-label-req">DocNetwork Needs</div>
+          <div class="map-req-text">Build and maintain Zapier and Gemini-based automations; develop additional enhancements to scale outbound processes</div>
+        </div>
+        <div class="map-cell-arrow">→</div>
+        <div class="map-cell">
+          <div class="map-label map-label-exp">My Experience</div>
+          <div class="map-exp-text">Make.com is my primary automation platform — I've built multi-trigger, multi-step workflows with webhook/JSON parsing, conditional routing, and SendGrid integration. Zapier is the same logic, different UI. I've also built AI-assisted automation workflows using LLMs for data enrichment and content generation.</div>
+          <span class="map-tag tag-direct">Direct Experience</span>
+        </div>
+      </div>
+
+      <div class="map-row">
+        <div class="map-cell map-cell-req">
+          <div class="map-label map-label-req">DocNetwork Needs</div>
+          <div class="map-req-text">Generate reports and dashboards on sales performance that surface trends and provide actionable insights for strategic decision-making</div>
+        </div>
+        <div class="map-cell-arrow">→</div>
+        <div class="map-cell">
+          <div class="map-label map-label-exp">My Experience</div>
+          <div class="map-exp-text">This is my anchor story at GLP Financial. I rebuilt a broken reporting system — <strong>74,000+ annual submissions, 393 advisors, $440M+ in production volume</strong> — from a 24-hour manual process to near-instantaneous. It powers weekly executive reporting, contest leaderboards, multi-year trend comparisons, and annualized projections. That's not just reporting. That's revenue intelligence.</div>
+          <span class="map-tag tag-direct">Direct Experience</span>
+        </div>
+      </div>
+
+      <div class="map-row">
+        <div class="map-cell map-cell-req">
+          <div class="map-label map-label-req">DocNetwork Needs</div>
+          <div class="map-req-text">An "AI whisperer" — proficient in prompt engineering, staying current on LLM tools, using AI to build and iterate faster than traditional development</div>
+        </div>
+        <div class="map-cell-arrow">→</div>
+        <div class="map-cell">
+          <div class="map-label map-label-exp">My Experience</div>
+          <div class="map-exp-text">This site is a live example. I used AI as a co-pilot to research DocNetwork, structure this narrative, generate and iterate the code, and ship a production-ready result — <strong>in a fraction of the time a traditional build would take</strong>. The High Net Worth Client Dashboard in the Projects section was also AI-assisted: multi-class financial data visualization with a live update tool, built and deployed independently.</div>
+          <span class="map-tag tag-direct">Direct Experience</span>
+        </div>
+      </div>
+
+      <div class="map-row">
+        <div class="map-cell map-cell-req">
+          <div class="map-label map-label-req">DocNetwork Needs</div>
+          <div class="map-req-text">Use Clay and Zoho to execute personalized outbound prospecting cadences; experience with SmartLead, Sendspark</div>
+        </div>
+        <div class="map-cell-arrow">→</div>
+        <div class="map-cell">
+          <div class="map-label map-label-exp">My Experience</div>
+          <div class="map-exp-text">Clay is on my active learning list — I understand data enrichment and waterfall logic conceptually and have applied the same principles in Airtable. I've built outbound workflows using email sequencing logic in Make.com + SendGrid. The cadence strategy translates directly; the specific UI is a quick ramp.</div>
+          <span class="map-tag tag-building">Actively Building</span>
+        </div>
+      </div>
+
+      <div class="map-row">
+        <div class="map-cell map-cell-req">
+          <div class="map-label map-label-req">DocNetwork Needs</div>
+          <div class="map-req-text">Interface cross-functionally with Marketing, Client Success, and Product to align on data definitions, lead flow, and revenue ops</div>
+        </div>
+        <div class="map-cell-arrow">→</div>
+        <div class="map-cell">
+          <div class="map-label map-label-exp">My Experience</div>
+          <div class="map-exp-text">At GLP Financial I served as the internal systems translator — presenting technology modernization proposals to C-suite, designing advisor-facing tools, and building the infrastructure that Marketing, Operations, and Sales all pulled from. <strong>I'm most effective when I'm the connective tissue between teams</strong>, not just a back-office function.</div>
+          <span class="map-tag tag-direct">Direct Experience</span>
+        </div>
+      </div>
+
+      <div class="map-row">
+        <div class="map-cell map-cell-req">
+          <div class="map-label map-label-req">DocNetwork Needs</div>
+          <div class="map-req-text">Proactively identify process inefficiencies and implement scalable solutions — self-starting, autonomous, able to prioritize in a fast-moving environment</div>
+        </div>
+        <div class="map-cell-arrow">→</div>
+        <div class="map-cell">
+          <div class="map-label map-label-exp">My Experience</div>
+          <div class="map-exp-text">Every significant project in my background was self-initiated. The QR attendance system at EMU started as an idea and scaled to 140 scanning locations. The K12 platform was conceived, architected, and deployed alongside a full-time job. The GLP reporting overhaul was unprompted — I saw the problem, designed the fix, and shipped it. <strong>I don't wait to be asked.</strong></div>
+          <span class="map-tag tag-direct">Direct Experience</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-eyebrow">03 — Selected Work</div>
+      <h2 class="section-title">Things I've<br>Actually Built</h2>
+    </div>
+    <div class="projects-grid">
+
+      <!-- DASHBOARD -->
+      <div class="project-card" id="card-dashboard">
+        <div class="project-header" onclick="toggleCard('card-dashboard')">
+          <div>
+            <div class="project-meta">
+              <span class="project-tag">AI-Assisted Build</span>
+              <span class="project-year">2025</span>
+            </div>
+            <div class="project-title">High Net Worth Client Asset Dashboard</div>
+            <div class="project-subtitle">Multi-class financial data visualization with a live update tool — built with AI as co-pilot, deployed as a client-facing portal</div>
+          </div>
+          <button class="project-toggle" aria-label="Expand">+</button>
+        </div>
+        <div class="project-body">
+          <div class="project-body-inner">
+            <p>A high-net-worth client needed a single-pane view of their complete financial picture — across cash, retirement, real estate, private equity, personal assets, and liabilities. I designed and built a fully interactive dashboard with donut chart allocation visualization, per-asset-class drill-down lightboxes, ownership views, and a contact directory. The companion Update Tool lets an advisor edit any value, date, or contact entry and download a refreshed dashboard HTML file instantly — no backend, no server, pure client-side.</p>
+            <ul class="project-highlights">
+              <li>Interactive donut chart with per-category drill-down lightboxes showing full holding detail, vault references, and ownership splits</li>
+              <li>Companion Update Tool with live totals bar — edit any value and download a regenerated dashboard in one click</li>
+              <li>Ownership view filters all holdings by named owner, showing their share across all asset classes</li>
+              <li>Built with AI as a co-pilot for rapid iteration — concept to deployed tool in a fraction of traditional development time</li>
+              <li>Client names redacted for portfolio use; all financial institutions and structure are representative of real complexity</li>
+            </ul>
+            <div class="stack-label">Tech Stack</div>
+            <div class="stack-tags">
+              <span class="stack-tag">HTML / CSS / JavaScript</span>
+              <span class="stack-tag">Chart.js</span>
+              <span class="stack-tag">AI-Assisted Development</span>
+              <span class="stack-tag">Client-Side Architecture</span>
+            </div>
+            <button class="project-link" onclick="openDemo('dashboard')">Open Live Dashboard Demo →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- K12 -->
+      <div class="project-card" id="card-k12">
+        <div class="project-header" onclick="toggleCard('card-k12')">
+          <div>
+            <div class="project-meta">
+              <span class="project-tag">Full GTM Platform Build</span>
+              <span class="project-year">2025 – Present</span>
+            </div>
+            <div class="project-title">K12 Retirement Planning</div>
+            <div class="project-subtitle">End-to-end GTM platform for Michigan public school educators — CRM, automation, client portal, lead gen, and content library built independently</div>
+          </div>
+          <button class="project-toggle" aria-label="Expand">+</button>
+        </div>
+        <div class="project-body">
+          <div class="project-body-inner">
+            <p>Independently conceived and deployed a full digital retirement planning platform targeting Michigan's 380,000+ public school employees. From market research and product strategy through full technical execution — built alongside a full-time role. This is what "GTM Systems Architect" looks like in practice.</p>
+            <ul class="project-highlights">
+              <li>5-table Airtable CRM with Make.com automation — webhook/JSON parsing, multi-step advisor notification workflows</li>
+              <li>Softr.io client portal with role-based access, integrated with the Airtable backend</li>
+              <li>Retirement Success Score™ — proprietary 0–40 composite lead scoring system across four planning dimensions</li>
+              <li>30-video content library architecture segmented by career stage — wrote all scripts, built the recording studio, directed and edited all current videos</li>
+              <li>Full deployment stack: WordPress/Elementor, Cloudflare Pages, cPanel, GitHub, SendGrid with domain authentication</li>
+            </ul>
+            <div class="stack-label">Tech Stack</div>
+            <div class="stack-tags">
+              <span class="stack-tag">Airtable</span>
+              <span class="stack-tag">Make.com</span>
+              <span class="stack-tag">Softr.io</span>
+              <span class="stack-tag">WordPress / Elementor</span>
+              <span class="stack-tag">SendGrid</span>
+              <span class="stack-tag">Cloudflare Pages</span>
+              <span class="stack-tag">GitHub</span>
+            </div>
+            <a href="https://k12retirementplanning.com" target="_blank" class="project-link">View Live Site →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- GLP -->
+      <div class="project-card" id="card-glp">
+        <div class="project-header" onclick="toggleCard('card-glp')">
+          <div>
+            <div class="project-meta">
+              <span class="project-tag">Operations & Automation</span>
+              <span class="project-year">2021 – Present</span>
+            </div>
+            <div class="project-title">Sales Reporting Modernization</div>
+            <div class="project-subtitle">Rebuilt a broken reporting system powering 393 advisors, $440M+ in annual production, and weekly C-suite intelligence</div>
+          </div>
+          <button class="project-toggle" aria-label="Expand">+</button>
+        </div>
+        <div class="project-body">
+          <div class="project-body-inner">
+            <p>Inherited a manual sales reporting process that took 24+ hours to verify and failed regularly. Redesigned it end-to-end into the single source of truth for over 74,000 annual business submissions — powering executive reporting, agent leaderboards, multi-year trend analysis, and annualized pace projections.</p>
+            <ul class="project-highlights">
+              <li>Reduced reporting verification time from 24+ hours to near-instantaneous — 99.99%+ reduction</li>
+              <li>Powers all company sales contests, weekly advisor newsletters, and production leaderboards</li>
+              <li>Integrated Calendly appointment data to generate forward-looking production projections</li>
+              <li>Designed and presented a full technology modernization proposal to C-suite — Airtable + Make.com stack</li>
+              <li>Cited as key contributor to 60%+ production growth across the advisor base ($250M → $400M+)</li>
+            </ul>
+            <div class="stack-label">Tech Stack</div>
+            <div class="stack-tags">
+              <span class="stack-tag">Advanced Excel</span>
+              <span class="stack-tag">SharePoint</span>
+              <span class="stack-tag">Power Automate</span>
+              <span class="stack-tag">DocuSign</span>
+              <span class="stack-tag">Formstack</span>
+              <span class="stack-tag">Calendly</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- STACK -->
+<section id="stack">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-eyebrow">04 — Tech</div>
+      <h2 class="section-title">Their Stack.<br>My Honest Take.</h2>
+    </div>
+    <p class="stack-intro">I'm not going to overclaim. <em>Here's exactly where I stand</em> on every tool in the job description — and why the gaps are smaller than they look.</p>
+
+    <div class="stack-compare">
+      <div class="stack-col">
+        <div class="stack-col-head stack-col-head-dn">
+          <div>
+            <div class="stack-col-title">DocNetwork Stack</div>
+            <div class="stack-col-sub">Tools listed in the job description</div>
+          </div>
+        </div>
+        <div class="stack-items">
+          <div class="stack-item">
+            <div><div class="stack-item-name">Salesforce</div><div class="stack-item-sub">CRM administration, pipeline, reporting</div></div>
+            <div class="confidence"><div class="conf-dot conf-mid"></div><div class="conf-dot conf-mid"></div><div class="conf-dot conf-low"></div><span class="conf-label conf-label-mid">Adjacent</span></div>
+          </div>
+          <div class="stack-item">
+            <div><div class="stack-item-name">Gong</div><div class="stack-item-sub">Revenue intelligence, call recording</div></div>
+            <div class="confidence"><div class="conf-dot conf-mid"></div><div class="conf-dot conf-low"></div><div class="conf-dot conf-low"></div><span class="conf-label conf-label-mid">Ramping</span></div>
+          </div>
+          <div class="stack-item">
+            <div><div class="stack-item-name">Zapier</div><div class="stack-item-sub">Automation & workflow triggers</div></div>
+            <div class="confidence"><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><span class="conf-label conf-label-high">Fluent</span></div>
+          </div>
+          <div class="stack-item">
+            <div><div class="stack-item-name">Clay</div><div class="stack-item-sub">Data enrichment, prospecting</div></div>
+            <div class="confidence"><div class="conf-dot conf-mid"></div><div class="conf-dot conf-low"></div><div class="conf-dot conf-low"></div><span class="conf-label conf-label-mid">Building</span></div>
+          </div>
+          <div class="stack-item">
+            <div><div class="stack-item-name">SmartLead / Sendspark</div><div class="stack-item-sub">Outbound sequencing & video</div></div>
+            <div class="confidence"><div class="conf-dot conf-mid"></div><div class="conf-dot conf-low"></div><div class="conf-dot conf-low"></div><span class="conf-label conf-label-mid">Building</span></div>
+          </div>
+          <div class="stack-item">
+            <div><div class="stack-item-name">Gemini / LLMs</div><div class="stack-item-sub">AI-assisted automation, prompt engineering</div></div>
+            <div class="confidence"><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><span class="conf-label conf-label-high">Fluent</span></div>
+          </div>
+          <div class="stack-item">
+            <div><div class="stack-item-name">Excel / Google Sheets</div><div class="stack-item-sub">Advanced reporting, modeling</div></div>
+            <div class="confidence"><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><span class="conf-label conf-label-high">Fluent</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack-col">
+        <div class="stack-col-head stack-col-head-me">
+          <div>
+            <div class="stack-col-title">My Stack</div>
+            <div class="stack-col-sub">What I've shipped with</div>
+          </div>
+        </div>
+        <div class="stack-items">
+          <div class="stack-item">
+            <div><div class="stack-item-name">Airtable CRM</div><div class="stack-item-sub">Built 5-table CRM from scratch — same architecture thinking as Salesforce</div></div>
+            <div class="confidence"><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><span class="conf-label conf-label-high">Fluent</span></div>
+          </div>
+          <div class="stack-item">
+            <div><div class="stack-item-name">Make.com (Integromat)</div><div class="stack-item-sub">Multi-step automations with webhooks, JSON parsing, conditional logic</div></div>
+            <div class="confidence"><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><span class="conf-label conf-label-high">Fluent</span></div>
+          </div>
+          <div class="stack-item">
+            <div><div class="stack-item-name">SendGrid</div><div class="stack-item-sub">Transactional email with domain authentication & delivery optimization</div></div>
+            <div class="confidence"><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><span class="conf-label conf-label-high">Fluent</span></div>
+          </div>
+          <div class="stack-item">
+            <div><div class="stack-item-name">Softr.io</div><div class="stack-item-sub">Client portals with role-based access, Airtable-integrated</div></div>
+            <div class="confidence"><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><span class="conf-label conf-label-high">Fluent</span></div>
+          </div>
+          <div class="stack-item">
+            <div><div class="stack-item-name">Cloudflare Pages / GitHub</div><div class="stack-item-sub">Full deployment stack — this site is live on Cloudflare Pages right now</div></div>
+            <div class="confidence"><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><span class="conf-label conf-label-high">Fluent</span></div>
+          </div>
+          <div class="stack-item">
+            <div><div class="stack-item-name">Power Automate / SharePoint</div><div class="stack-item-sub">Enterprise automation within Microsoft ecosystem at GLP Financial</div></div>
+            <div class="confidence"><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><div class="conf-dot conf-mid"></div><span class="conf-label conf-label-high">Proficient</span></div>
+          </div>
+          <div class="stack-item">
+            <div><div class="stack-item-name">HTML / CSS / JavaScript</div><div class="stack-item-sub">Hand-coded — this entire site was written from scratch</div></div>
+            <div class="confidence"><div class="conf-dot conf-full"></div><div class="conf-dot conf-full"></div><div class="conf-dot conf-mid"></div><span class="conf-label conf-label-high">Proficient</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stack-legend">
+      <div class="legend-item"><div class="conf-dot conf-full" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--dn-green);"></div> Fluent / Proficient — shipped real work with this</div>
+      <div class="legend-item"><div class="conf-dot conf-mid" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f0a500;"></div> Adjacent / Ramping — understand the logic, learning the UI</div>
+      <div class="legend-item"><div class="conf-dot conf-low" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--border);"></div> Planned — on my active learning roadmap</div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section id="why">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-eyebrow">05 — Why DocNetwork</div>
+      <h2 class="section-title">Why This Role.<br>Why Now.</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-num">01</div>
+        <div class="why-title">The Mission Is Real</div>
+        <div class="why-body">Keeping kids healthy and safe while they're away from home isn't a tagline — it's a reason to care about the work. I want to be part of something where the product genuinely matters. <em>DocNetwork qualifies.</em></div>
+      </div>
+      <div class="why-card">
+        <div class="why-num">02</div>
+        <div class="why-title">Market Leadership + Growth Room</div>
+        <div class="why-body">The #1 position in a defensible niche, triple-certified, 10× FastTrack Award, expanding headcount. This isn't a company in decline looking for someone to maintain the status quo. <em>This is a company building.</em> I build things.</div>
+      </div>
+      <div class="why-card">
+        <div class="why-num">03</div>
+        <div class="why-title">Autonomy & Cross-Functional Scope</div>
+        <div class="why-body">The role sits at the intersection of Sales, Marketing, Client Success, and Product — and the job description explicitly calls for someone who works autonomously. <em>That's the environment where I'm most effective.</em></div>
+      </div>
+      <div class="why-card">
+        <div class="why-num">04</div>
+        <div class="why-title">AI Is the Frontier Here</div>
+        <div class="why-body">The "AI whisperer" requirement isn't an afterthought — it signals that DocNetwork is actively building AI into their GTM motion. <em>That's exactly where I want to grow.</em> Prompt engineering, LLM-assisted automation, AI-accelerated development — this is my edge.</div>
+      </div>
+      <div class="why-card">
+        <div class="why-num">05</div>
+        <div class="why-title">Small Team, Big Impact</div>
+        <div class="why-body">A small but mighty sales team means my work is visible, my decisions matter, and there's room to shape the function — not just inherit it. <em>I don't do well on benches.</em> I do well when there's real ownership on the table.</div>
+      </div>
+      <div class="why-card">
+        <div class="why-num">06</div>
+        <div class="why-title">Cultural Fit Is Checkable</div>
+        <div class="why-body">Get Curious. Deliver Beyond. Stay Mindful. Build Connections. Those aren't values I had to memorize — they describe how I already operate. <em>The office dog named Munki doesn't hurt either.</em></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSING -->
+<section id="closing">
+  <div class="section-inner">
+    <div class="closing-grid">
+      <div class="closing-left">
+        <div class="section-eyebrow">06 — Let's Talk</div>
+        <h2 class="section-title">I'd Love<br>to Connect.</h2>
+        <p>If what you've seen here resonates — the work, the thinking, the way I showed up for this conversation before we've even met — I'd welcome the chance to continue it in person.</p>
+        <p>The full portfolio, with additional project detail and live demos, is at <em>johnfwilliamsiii.com</em>.</p>
+        <div class="closing-links">
+          <a href="https://johnfwilliamsiii.com" target="_blank" class="closing-link">
+            <div class="closing-link-icon">↗</div>
+            johnfwilliamsiii.com — Full Portfolio
+          </a>
+          <a href="https://linkedin.com/in/johnfwilliamsiii" target="_blank" class="closing-link">
+            <div class="closing-link-icon">in</div>
+            linkedin.com/in/johnfwilliamsiii
+          </a>
+          <a href="mailto:jwmi01@gmail.com" class="closing-link">
+            <div class="closing-link-icon">@</div>
+            jwmi01@gmail.com
+          </a>
+        </div>
+      </div>
+      <div class="closing-right">
+        <div class="closing-detail">
+          <div class="closing-detail-label">Name</div>
+          <div class="closing-detail-value">John F. Williams III</div>
+        </div>
+        <div class="closing-detail">
+          <div class="closing-detail-label">Role Applied</div>
+          <div class="closing-detail-value">Sales Operations Specialist — DocNetwork</div>
+        </div>
+        <div class="closing-detail">
+          <div class="closing-detail-label">Location</div>
+          <div class="closing-detail-value">Saline, MI — open to hybrid in Ann Arbor</div>
+        </div>
+        <div class="closing-detail">
+          <div class="closing-detail-label">Phone</div>
+          <div class="closing-detail-value">734-660-1382</div>
+        </div>
+        <div class="closing-detail">
+          <div class="closing-detail-label">Email</div>
+          <div class="closing-detail-value"><a href="mailto:jwmi01@gmail.com">jwmi01@gmail.com</a></div>
+        </div>
+        <div class="closing-detail" style="margin-bottom:0;">
+          <div class="closing-detail-label">This site</div>
+          <div class="closing-detail-value" style="color:rgba(245,242,237,.45);font-size:.82rem;">Built as interview prep — a live example of how I research, think, and ship.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-name">John F. Williams III</div>
+  <div class="footer-note">Prepared for DocNetwork · Sales Operations Specialist Interview</div>
+</footer>
+
+<!-- DEMO OVERLAY -->
+<div class="overlay" id="demoOverlay" onclick="closeOverlayClick(event)">
+  <div class="lightbox" id="demoLightbox">
+    <div class="lb-toolbar">
+      <span class="lb-toolbar-title" id="lbToolbarTitle">Asset Dashboard Demo</span>
+      <div class="lb-toolbar-right">
+        <button class="lb-tab active" id="tabDash" onclick="switchTab('dashboard')">Dashboard</button>
+        <button class="lb-tab" id="tabTool" onclick="switchTab('tool')">Update Tool</button>
+        <button class="lb-close" onclick="closeDemo()">✕</button>
+      </div>
+    </div>
+    <iframe class="lb-frame" id="demoFrame" src="" title="Demo"></iframe>
+  </div>
+</div>
+
+<script>
+// ── Project accordion ──
+function toggleCard(id){
+  const card = document.getElementById(id);
+  card.classList.toggle('open');
+}
+
+// ── Demo lightbox ──
+const DASHBOARD_URL = 'client_asset_dashboard.html';
+const TOOL_URL      = 'client_update_tool.html';
+let currentTab = 'dashboard';
+
+function openDemo(start){
+  currentTab = start || 'dashboard';
+  switchTab(currentTab);
+  document.getElementById('demoOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function switchTab(tab){
+  currentTab = tab;
+  const frame = document.getElementById('demoFrame');
+  const titles = {dashboard:'High Net Worth Client — Asset Dashboard', tool:'Dashboard Update Tool'};
+  document.getElementById('lbToolbarTitle').textContent = titles[tab];
+  document.getElementById('tabDash').classList.toggle('active', tab === 'dashboard');
+  document.getElementById('tabTool').classList.toggle('active', tab === 'tool');
+  frame.src = tab === 'dashboard' ? DASHBOARD_URL : TOOL_URL;
+}
+
+function closeDemo(){
+  document.getElementById('demoOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  setTimeout(()=>{ document.getElementById('demoFrame').src = ''; }, 300);
+}
+
+function closeOverlayClick(e){
+  if(e.target === document.getElementById('demoOverlay')) closeDemo();
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') closeDemo();
+});
+
+// ── Smooth active nav on scroll ──
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', ()=>{
+  let current = '';
+  sections.forEach(s=>{
+    if(window.scrollY >= s.offsetTop - 120) current = s.id;
+  });
+  navLinks.forEach(a=>{
+    a.style.color = a.getAttribute('href') === '#'+current ? 'var(--ink)' : '';
+  });
+}, {passive:true});
+</script>
+
+</body>
+</html>

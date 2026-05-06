@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K12 Retirement Success System™ — System Architecture Document</title>
+<style>
+:root {
+  --navy: #142B4A;
+  --gold: #D6A73B;
+  --blue: #3B587A;
+  --green: #2E7D5B;
+  --red: #C0392B;
+  --lblue: #EEF3F8;
+  --lgold: #F9F0DC;
+  --mid: #4A5568;
+  --rule: #D1D9E3;
+  --hdark: #8BA3BE;
+  --bg: #F0F4F8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--navy); font-size: 14px; line-height: 1.7; }
+
+/* HEADER */
+.doc-header {
+  background: var(--navy);
+  border-top: 6px solid var(--gold);
+  padding: 40px 48px;
+  color: white;
+}
+.doc-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+.doc-header h1 span { color: var(--gold); }
+.doc-header .meta { font-size: 12px; color: var(--hdark); margin-top: 10px; }
+.doc-header .subtitle { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 6px; }
+
+/* LAYOUT */
+.doc-body { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 120px); }
+
+/* SIDEBAR */
+.sidebar {
+  background: var(--navy);
+  padding: 24px 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-title { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--hdark); padding: 0 20px 10px; }
+.sidebar a {
+  display: block;
+  padding: 7px 20px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.65);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+}
+.sidebar a:hover { color: white; border-left-color: var(--gold); background: rgba(255,255,255,0.05); }
+.sidebar .section-group { margin-bottom: 16px; }
+
+/* MAIN CONTENT */
+.main { padding: 36px 48px 80px; max-width: 900px; }
+
+/* SECTIONS */
+.section { margin-bottom: 48px; }
+.section-header {
+  border-left: 4px solid var(--gold);
+  padding-left: 14px;
+  margin-bottom: 20px;
+}
+.section-header h2 { font-size: 20px; font-weight: 700; color: var(--navy); }
+.section-header .section-num { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 2px; }
+
+/* CARDS */
+.card { background: white; border: 1px solid var(--rule); padding: 20px 24px; margin-bottom: 16px; border-radius: 2px; }
+.card h3 { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--rule); }
+.card p { font-size: 13px; color: var(--mid); margin-bottom: 8px; }
+.card p:last-child { margin-bottom: 0; }
+
+/* ALERT BOXES */
+.alert { padding: 14px 18px; margin-bottom: 16px; border-radius: 2px; font-size: 13px; }
+.alert-gold { background: var(--lgold); border-left: 4px solid var(--gold); color: var(--navy); }
+.alert-blue { background: var(--lblue); border-left: 4px solid var(--blue); color: var(--navy); }
+.alert-red { background: #FDF0EF; border-left: 4px solid var(--red); color: var(--navy); }
+.alert-green { background: #EFF7F3; border-left: 4px solid var(--green); color: var(--navy); }
+.alert strong { font-weight: 700; }
+
+/* TABLES */
+table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
+th { background: var(--navy); color: white; text-align: left; padding: 8px 12px; font-weight: 600; font-size: 11px; letter-spacing: 0.5px; }
+td { padding: 7px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+tr:nth-child(even) td { background: var(--lblue); }
+td code { font-family: monospace; font-size: 11px; background: var(--lblue); padding: 1px 5px; border-radius: 3px; }
+
+/* CODE BLOCKS */
+.code-block { background: var(--navy); color: #B5D4F4; padding: 16px 20px; font-family: monospace; font-size: 12px; line-height: 1.6; margin-bottom: 16px; border-radius: 2px; overflow-x: auto; white-space: pre; }
+
+/* FLOW DIAGRAM */
+.flow { display: flex; align-items: center; gap: 0; margin: 20px 0; flex-wrap: wrap; }
+.flow-step { background: var(--navy); color: white; padding: 10px 16px; font-size: 11px; font-weight: 700; text-align: center; min-width: 100px; }
+.flow-step .step-num { font-size: 9px; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+.flow-arrow { color: var(--gold); font-size: 18px; padding: 0 4px; }
+.flow-step.green { background: var(--green); }
+.flow-step.gold { background: var(--gold); color: var(--navy); }
+.flow-step.blue { background: var(--blue); }
+
+/* STATUS BADGES */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+.badge-green { background: #D4EDDA; color: var(--green); }
+.badge-gold { background: var(--lgold); color: #8B6914; }
+.badge-blue { background: var(--lblue); color: var(--blue); }
+.badge-red { background: #FDF0EF; color: var(--red); }
+
+/* LIST STYLES */
+ul.doc-list { margin: 8px 0 12px 20px; }
+ul.doc-list li { font-size: 13px; color: var(--mid); margin-bottom: 4px; }
+ul.doc-list li strong { color: var(--navy); }
+
+/* DIVIDER */
+hr { border: none; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* FOOTER */
+.doc-footer { background: var(--navy); padding: 20px 48px; text-align: center; }
+.doc-footer p { font-size: 11px; color: var(--hdark); }
+
+@media print {
+  .sidebar { display: none; }
+  .doc-body { grid-template-columns: 1fr; }
+  .main { padding: 20px; }
+  .section { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-header">
+  <h1>K12 Retirement Success System™ <span>— System Architecture</span></h1>
+  <div class="subtitle">Complete technical reference for the digital retirement planning platform</div>
+  <div class="meta">Version 1.0 &nbsp;·&nbsp; Built March 2026 &nbsp;·&nbsp; Advisor: Sean Shearon &nbsp;·&nbsp; K12RetirementPlanning.com</div>
+</div>
+
+<div class="doc-body">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="section-group">
+    <div class="sidebar-title">Overview</div>
+    <a href="#overview">1. System Overview</a>
+    <a href="#stack">2. Technology Stack</a>
+    <a href="#dataflow">3. Data Flow</a>
+  </div>
+  <div class="section-group">
+    <div class="sidebar-title">Components</div>
+    <a href="#files">4. File Inventory</a>
+    <a href="#airtable">5. Airtable Structure</a>
+    <a href="#make">6. Make.com Scenario</a>
+    <a href="#softr">7. Softr Portal</a>
+    <a href="#sendgrid">8. SendGrid Email</a>
+  </div>
+  <div class="section-group">
+    <div class="sidebar-title">Reference</div>
+    <a href="#credentials">9. Credentials & Keys</a>
+    <a href="#issues">10. Known Issues</a>
+    <a href="#roadmap">11. Phase Roadmap</a>
+    <a href="#changes">12. Making Changes</a>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- SECTION 1: OVERVIEW -->
+  <div class="section" id="overview">
+    <div class="section-header">
+      <div class="section-num">Section 01</div>
+      <h2>System Overview</h2>
+    </div>
+
+    <p style="font-size:14px; color:var(--mid); margin-bottom:20px;">The K12 Retirement Success System™ is a digital retirement planning platform for Michigan K12 educators. It captures prospect data through a lead magnet calculator, delivers personalized results, and automatically provisions a dashboard account — creating a warm lead with data attached before Sean's first contact.</p>
+
+    <div class="card">
+      <h3>Business Purpose</h3>
+      <p>A prospect visits the lead magnet gap calculator, enters their financial data, and receives a personalized retirement gap report. Their data is automatically saved to the system and a personal dashboard account is created. Sean receives a warm lead with full financial context before any conversation takes place.</p>
+    </div>
+
+    <div class="card">
+      <h3>Three-Tier Access Model</h3>
+      <table>
+        <tr><th>Role</th><th>Access Level</th><th>Portal</th></tr>
+        <tr><td><strong>Prospect / Client</strong></td><td>Their own record only</td><td>Softr — personal dashboard</td></tr>
+        <tr><td><strong>Advisor</strong></td><td>Assigned clients only</td><td>Softr — advisor view (Phase 2)</td></tr>
+        <tr><td><strong>Sean (Admin)</strong></td><td>All clients, all advisors</td><td>Airtable + Softr admin (Phase 2)</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Current Build Status</h3>
+      <table>
+        <tr><th>Component</th><th>Status</th><th>Notes</th></tr>
+        <tr><td>Lead Magnet Form</td><td><span class="badge badge-green">Live</span></td><td>Embedded in WordPress via Elementor</td></tr>
+        <tr><td>Results Page</td><td><span class="badge badge-green">Live</span></td><td>Hosted at /lead_magnet/K12_Results.html</td></tr>
+        <tr><td>Make.com Automation</td><td><span class="badge badge-green">Live</span></td><td>Auto-processes every ~1 minute</td></tr>
+        <tr><td>Airtable Database</td><td><span class="badge badge-green">Live</span></td><td>5 tables built, Phase 1 fields active</td></tr>
+        <tr><td>Softr Portal</td><td><span class="badge badge-green">Live</span></td><td>Prospect dashboard active</td></tr>
+        <tr><td>SendGrid Email</td><td><span class="badge badge-green">Live</span></td><td>Sends from sean@k12retirementplanning.com</td></tr>
+        <tr><td>Advisor Portal</td><td><span class="badge badge-gold">Phase 2</span></td><td>Not yet built</td></tr>
+        <tr><td>District Management</td><td><span class="badge badge-gold">Phase 3</span></td><td>Not yet built</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 2: TECH STACK -->
+  <div class="section" id="stack">
+    <div class="section-header">
+      <div class="section-num">Section 02</div>
+      <h2>Technology Stack</h2>
+    </div>
+
+    <table>
+      <tr><th>Tool</th><th>Role</th><th>Plan</th><th>URL</th></tr>
+      <tr><td><strong>WordPress + Elementor</strong></td><td>Website & form hosting</td><td>Existing</td><td>k12retirementplanning.com</td></tr>
+      <tr><td><strong>Nixihost cPanel</strong></td><td>Web hosting, DNS, file hosting</td><td>Existing</td><td>Nixihost control panel</td></tr>
+      <tr><td><strong>Airtable</strong></td><td>Database — all prospect/client data</td><td>Free</td><td>airtable.com</td></tr>
+      <tr><td><strong>Make.com</strong></td><td>Automation — connects all systems</td><td>Core (~$10/mo)</td><td>make.com</td></tr>
+      <tr><td><strong>Softr</strong></td><td>Client portal — built on Airtable</td><td>Paid</td><td>softr.io / studio.softr.io</td></tr>
+      <tr><td><strong>SendGrid</strong></td><td>Transactional email delivery</td><td>Free (100/day)</td><td>sendgrid.com</td></tr>
+    </table>
+
+    <div class="alert alert-gold">
+      <strong>Cost Summary (Phase 1):</strong> Make.com Core ~$10/mo + Softr plan. All other tools are free at current volume. SendGrid free tier supports ~3,000 emails/month.
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 3: DATA FLOW -->
+  <div class="section" id="dataflow">
+    <div class="section-header">
+      <div class="section-num">Section 03</div>
+      <h2>Data Flow — Prospect Journey</h2>
+    </div>
+
+    <div class="flow">
+      <div class="flow-step"><div class="step-num">Step 1</div>Form Submit</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step blue"><div class="step-num">Step 2</div>Results Page</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="step-num">Step 3</div>Webhook fires</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step green"><div class="step-num">Step 4</div>Make.com</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step gold"><div class="step-num">Step 5</div>Airtable Record</div>
+    </div>
+    <div class="flow" style="margin-top:0;">
+      <div class="flow-step gold"><div class="step-num">Step 6</div>Softr User</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step green"><div class="step-num">Step 7</div>Welcome Email</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step blue"><div class="step-num">Step 8</div>Dashboard Login</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><div class="step-num">Step 9</div>Sean Follow-up</div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>Detailed Step-by-Step</h3>
+      <table>
+        <tr><th>#</th><th>Action</th><th>System</th><th>Time</th></tr>
+        <tr><td>1</td><td>Prospect fills out gap calculator form and clicks Generate</td><td>WordPress/Elementor</td><td>Instant</td></tr>
+        <tr><td>2</td><td>Form validates, fires data to Make.com webhook, redirects to Results page</td><td>HTML/JavaScript</td><td>Instant</td></tr>
+        <tr><td>3</td><td>Results page reads URL parameters and renders personalized report</td><td>K12_Results.html</td><td>Instant</td></tr>
+        <tr><td>4</td><td>Make.com receives webhook data, queues for processing</td><td>Make.com</td><td>Instant</td></tr>
+        <tr><td>5</td><td>Make.com JSON module parses raw webhook string into individual fields</td><td>Make.com</td><td>~1 min</td></tr>
+        <tr><td>6</td><td>Airtable record created in Prospects/Clients table</td><td>Make.com → Airtable</td><td>~1 min</td></tr>
+        <tr><td>7</td><td>Softr user account created with magic link generated</td><td>Make.com → Softr API</td><td>~1 min</td></tr>
+        <tr><td>8</td><td>Welcome email sent with dashboard access link</td><td>Make.com → SendGrid</td><td>~1-3 min</td></tr>
+        <tr><td>9</td><td>Prospect clicks link, accesses personal dashboard</td><td>Softr</td><td>Prospect-driven</td></tr>
+        <tr><td>10</td><td>Sean sees new record in Airtable, follows up within 1 business day</td><td>Airtable</td><td>Manual</td></tr>
+      </table>
+    </div>
+
+    <div class="alert alert-blue">
+      <strong>Processing Delay:</strong> Make.com runs on a 1-minute schedule. Total time from form submission to welcome email is typically 3-5 minutes. The prospect sees their results page instantly — the delay only affects the email and dashboard provisioning.
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 4: FILE INVENTORY -->
+  <div class="section" id="files">
+    <div class="section-header">
+      <div class="section-num">Section 04</div>
+      <h2>File Inventory</h2>
+    </div>
+
+    <div class="alert alert-gold">
+      <strong>File Location on Server:</strong> All lead magnet files are stored at <code>/home/kretirem/public_html/lead_magnet/</code> on Nixihost. Accessible via cPanel File Manager.
+    </div>
+
+    <table>
+      <tr><th>File</th><th>Purpose</th><th>Location</th><th>Status</th></tr>
+      <tr><td><code>K12_Lead_Magnet_Dynamic.html</code></td><td>The gap calculator form. Collects prospect data, fires webhook to Make.com, redirects to Results page.</td><td>/lead_magnet/ + Elementor widget</td><td><span class="badge badge-green">Live</span></td></tr>
+      <tr><td><code>K12_Results.html</code></td><td>Personalized results page. Reads URL parameters and renders the prospect's retirement gap report.</td><td>/lead_magnet/</td><td><span class="badge badge-green">Live</span></td></tr>
+      <tr><td><code>K12_Planner_WebForm.html</code></td><td>8-step interactive advisor planner — main working tool for Sean's client meetings.</td><td>TBD</td><td><span class="badge badge-blue">Working tool</span></td></tr>
+      <tr><td><code>K12_Doc1_Baseline.html</code></td><td>Printable baseline assessment document.</td><td>TBD</td><td><span class="badge badge-blue">Working tool</span></td></tr>
+      <tr><td><code>K12_Doc2_Meeting_Template.html</code></td><td>Printable meeting template.</td><td>TBD</td><td><span class="badge badge-blue">Working tool</span></td></tr>
+      <tr><td><code>K12_Doc3_Score_Tracker.html</code></td><td>Printable score tracker.</td><td>TBD</td><td><span class="badge badge-blue">Working tool</span></td></tr>
+      <tr><td><code>K12_Partner_Presentation.html</code></td><td>Slide deck for partner/district presentations. References other 3 mockup files via relative URLs — all 4 must be in same folder.</td><td>TBD</td><td><span class="badge badge-blue">Presentation</span></td></tr>
+      <tr><td><code>K12_Lead_Magnet_Mockup.html</code></td><td>Lead gen gap calculator mockup (displayed within presentation).</td><td>Same folder as presentation</td><td><span class="badge badge-blue">Presentation</span></td></tr>
+      <tr><td><code>K12_Planner_Mockup.html</code></td><td>Advisor planner Step 6 mockup (displayed within presentation).</td><td>Same folder as presentation</td><td><span class="badge badge-blue">Presentation</span></td></tr>
+      <tr><td><code>K12_Client_Dashboard_Mockup.html</code></td><td>Client portal dashboard mockup with Chart.js (displayed within presentation).</td><td>Same folder as presentation</td><td><span class="badge badge-blue">Presentation</span></td></tr>
+    </table>
+
+    <div class="alert alert-red">
+      <strong>Important:</strong> The lead magnet form code exists in TWO places — the file in /lead_magnet/ AND embedded in the Elementor HTML widget on the WordPress page. Both must be kept in sync when changes are made. The Elementor widget is what actually runs in the browser.
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 5: AIRTABLE -->
+  <div class="section" id="airtable">
+    <div class="section-header">
+      <div class="section-num">Section 05</div>
+      <h2>Airtable Structure</h2>
+    </div>
+
+    <div class="alert alert-red">
+      <strong>Critical Rule:</strong> Never rename Airtable fields that are mapped in Make.com. Renaming breaks the automation mappings and requires remapping in Make.com manually.
+    </div>
+
+    <div class="card">
+      <h3>Base Name: K12 Retirement Planning</h3>
+      <p>Five tables built from day one to support Phase 1 through Phase 3 without rebuilding. Scaling to new advisors and districts is done by assigning records, not restructuring tables.</p>
+    </div>
+
+    <div class="card">
+      <h3>Table 1: Prospects / Clients (Core Table)</h3>
+      <table>
+        <tr><th>Field Name</th><th>Type</th><th>Notes</th></tr>
+        <tr><td>Name</td><td>Single line text</td><td>Primary field — record label throughout Airtable</td></tr>
+        <tr><td>Email</td><td>Email</td><td>Used for Softr login matching — must be unique</td></tr>
+        <tr><td>Phone</td><td>Phone</td><td></td></tr>
+        <tr><td>Status</td><td>Single select</td><td>Prospect → Active Client → Inactive</td></tr>
+        <tr><td>District</td><td>Link to Districts</td><td>Can be blank in Phase 1</td></tr>
+        <tr><td>Advisor</td><td>Link to Advisors</td><td>Assign Sean's record to all Phase 1 clients</td></tr>
+        <tr><td>Years to Retirement</td><td>Number</td><td>Calculated from form: retirement age - current age</td></tr>
+        <tr><td>Current Age</td><td>Number</td><td></td></tr>
+        <tr><td>Years of Service</td><td>Number</td><td></td></tr>
+        <tr><td>Salary</td><td>Currency</td><td></td></tr>
+        <tr><td>Pension Estimate</td><td>Currency</td><td></td></tr>
+        <tr><td>Savings Balance</td><td>Currency</td><td></td></tr>
+        <tr><td>Retirement Income Gap</td><td>Currency</td><td>Salary minus pension</td></tr>
+        <tr><td>Retirement Readiness Score</td><td>Number (0-100)</td><td>Populated by advisor planner tool</td></tr>
+        <tr><td>Lead Source</td><td>Single select</td><td>Lead Magnet / Referral / District / Direct</td></tr>
+        <tr><td>Lead Magnet Submitted</td><td>Date</td><td>Auto-populated by Make.com</td></tr>
+        <tr><td>First Meeting Date</td><td>Date</td><td>Manual entry by Sean</td></tr>
+        <tr><td>Portal Access Enabled</td><td>Checkbox</td><td>Softr uses this to gate access</td></tr>
+        <tr><td>Notes</td><td>Long text</td><td>Sean's internal notes</td></tr>
+        <tr><td>Meetings</td><td>Link to Meetings</td><td>Auto-populates as meeting records are linked</td></tr>
+        <tr><td>Action Items</td><td>Link to Action Items</td><td>Auto-populates as action items are linked</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Table 2: Advisors</h3>
+      <table>
+        <tr><th>Field Name</th><th>Type</th><th>Notes</th></tr>
+        <tr><td>Name</td><td>Single line text</td><td>Primary field</td></tr>
+        <tr><td>Email</td><td>Email</td><td>Used for Softr login</td></tr>
+        <tr><td>Phone</td><td>Phone</td><td></td></tr>
+        <tr><td>Role</td><td>Single select</td><td>Admin / Advisor — Sean = Admin</td></tr>
+        <tr><td>Active</td><td>Checkbox</td><td>Deactivate without deleting</td></tr>
+        <tr><td>Clients</td><td>Link to Prospects/Clients</td><td>Shows all assigned clients</td></tr>
+        <tr><td>Date Joined</td><td>Date</td><td></td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Table 3: Meetings</h3>
+      <table>
+        <tr><th>Field Name</th><th>Type</th><th>Notes</th></tr>
+        <tr><td>Meeting Name</td><td>Formula</td><td>{Client} & " — " & DATETIME_FORMAT({Date}, 'M/D/YYYY')</td></tr>
+        <tr><td>Client</td><td>Link to Prospects/Clients</td><td>Required</td></tr>
+        <tr><td>Advisor</td><td>Link to Advisors</td><td></td></tr>
+        <tr><td>Date</td><td>Date</td><td></td></tr>
+        <tr><td>Meeting Type</td><td>Single select</td><td>Discovery / Planning / Review / Check-in</td></tr>
+        <tr><td>Summary</td><td>Long text</td><td></td></tr>
+        <tr><td>Readiness Score at Meeting</td><td>Number</td><td>Snapshot for progress tracking</td></tr>
+        <tr><td>Action Items</td><td>Link to Action Items</td><td></td></tr>
+        <tr><td>Next Meeting Date</td><td>Date</td><td></td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Table 4: Action Items</h3>
+      <table>
+        <tr><th>Field Name</th><th>Type</th><th>Notes</th></tr>
+        <tr><td>Task</td><td>Single line text</td><td>Primary field</td></tr>
+        <tr><td>Client</td><td>Link to Prospects/Clients</td><td></td></tr>
+        <tr><td>Meeting</td><td>Link to Meetings</td><td>Which meeting generated this item</td></tr>
+        <tr><td>Assigned To</td><td>Single select</td><td>Client / Sean / Advisor</td></tr>
+        <tr><td>Due Date</td><td>Date</td><td></td></tr>
+        <tr><td>Status</td><td>Single select</td><td>Not Started / In Progress / Complete / Blocked</td></tr>
+        <tr><td>Priority</td><td>Single select</td><td>High / Medium / Low</td></tr>
+        <tr><td>Notes</td><td>Long text</td><td></td></tr>
+        <tr><td>Completed Date</td><td>Date</td><td></td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Table 5: Districts</h3>
+      <table>
+        <tr><th>Field Name</th><th>Type</th><th>Notes</th></tr>
+        <tr><td>District Name</td><td>Single line text</td><td>Primary field</td></tr>
+        <tr><td>State</td><td>Single line text</td><td>Default: Michigan</td></tr>
+        <tr><td>HR Contact Name</td><td>Single line text</td><td></td></tr>
+        <tr><td>HR Contact Email</td><td>Email</td><td></td></tr>
+        <tr><td>Contract Status</td><td>Single select</td><td>Prospect / Active / Inactive</td></tr>
+        <tr><td>Contract Start Date</td><td>Date</td><td></td></tr>
+        <tr><td>Employees</td><td>Link to Prospects/Clients</td><td>All clients tagged to this district</td></tr>
+        <tr><td>Notes</td><td>Long text</td><td></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 6: MAKE.COM -->
+  <div class="section" id="make">
+    <div class="section-header">
+      <div class="section-num">Section 06</div>
+      <h2>Make.com Scenario</h2>
+    </div>
+
+    <div class="card">
+      <h3>Scenario Name: Integration Webhooks</h3>
+      <p><strong>Schedule:</strong> Runs every 1 minute automatically (On Demand: OFF)</p>
+      <p><strong>Plan Required:</strong> Make.com Core (~$10/mo) for 1-minute scheduling</p>
+      <p><strong>Webhook URL:</strong> https://hook.us2.make.com/l1ddnc09t559p3mqo59saaduo9g3z4hx</p>
+    </div>
+
+    <div class="card">
+      <h3>Module Chain</h3>
+      <table>
+        <tr><th>#</th><th>Module</th><th>Action</th><th>Key Config</th></tr>
+        <tr><td>1</td><td>Webhooks</td><td>Custom Webhook — K12 Lead Magnet</td><td>Receives raw JSON string from form as "value" field</td></tr>
+        <tr><td>8</td><td>JSON</td><td>Parse JSON</td><td>Parses bundle 1.value into individual fields using K12 Webhook Data structure</td></tr>
+        <tr><td>2</td><td>Airtable</td><td>Create a Record — Prospects/Clients</td><td>Maps bundle 8 fields to Airtable fields. Status=Prospect, Lead Source=Lead Magnet</td></tr>
+        <tr><td>6</td><td>HTTP</td><td>Make a request — Softr API</td><td>POST to studio-api.softr.io/v1/api/users. Creates user + generates magic link</td></tr>
+        <tr><td>7</td><td>SendGrid</td><td>Send an Email</td><td>From: sean@k12retirementplanning.com. To: 8.email. Includes magic link from 6.data.magic_link</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>HTTP Module (Softr User Creation) — Full Config</h3>
+      <p><strong>URL:</strong> https://studio-api.softr.io/v1/api/users</p>
+      <p><strong>Method:</strong> POST</p>
+      <p><strong>Headers:</strong></p>
+      <ul class="doc-list">
+        <li><strong>Softr-Api-Key:</strong> [See Credentials section]</li>
+        <li><strong>Softr-Domain:</strong> [client-portal-url]</li>
+      </ul>
+      <p><strong>Body (JSON string):</strong></p>
+      <div class="code-block">{
+  "email": "{{8.email}}",
+  "full_name": "{{8.name}}",
+  "password": "{{generated_temp_password}}",
+  "generate_magic_link": true
+}</div>
+      <p><strong>Parse response:</strong> Yes</p>
+    </div>
+
+    <div class="card">
+      <h3>Airtable Field Mappings (Bundle 8 — JSON Module)</h3>
+      <table>
+        <tr><th>Airtable Field</th><th>Make.com Source</th></tr>
+        <tr><td>Name</td><td>8. Name</td></tr>
+        <tr><td>Email</td><td>8. Email</td></tr>
+        <tr><td>Phone</td><td>8. Phone</td></tr>
+        <tr><td>Status</td><td>Static: "Prospect"</td></tr>
+        <tr><td>Years to Retirement</td><td>8. years_to_retire</td></tr>
+        <tr><td>Current Age</td><td>8. current_age</td></tr>
+        <tr><td>Years of Service</td><td>8. years_service</td></tr>
+        <tr><td>Salary</td><td>8. salary</td></tr>
+        <tr><td>Pension Estimate</td><td>8. pension</td></tr>
+        <tr><td>Savings Balance</td><td>8. current_savings</td></tr>
+        <tr><td>Retirement Income Gap</td><td>8. gap</td></tr>
+        <tr><td>Lead Source</td><td>Static: "Lead Magnet"</td></tr>
+        <tr><td>Lead Magnet Submitted</td><td>8. submitted_at</td></tr>
+      </table>
+    </div>
+
+    <div class="alert alert-gold">
+      <strong>Webhook Data Structure:</strong> The form sends all data as a single JSON string. The JSON Parse module (module 8) breaks it into individual fields. If you add new fields to the form, you must: (1) add them to the webhook payload in the HTML, (2) update the K12 Webhook Data structure in Make.com, (3) remap in Airtable module.
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 7: SOFTR -->
+  <div class="section" id="softr">
+    <div class="section-header">
+      <div class="section-num">Section 07</div>
+      <h2>Softr Portal</h2>
+    </div>
+
+    <div class="card">
+      <h3>App Details</h3>
+      <p><strong>App URL:</strong> https://[client-portal-url]</p>
+      <p><strong>Data Source:</strong> Airtable — K12 Retirement Planning base</p>
+      <p><strong>Sign Up:</strong> Disabled (accounts created by Make.com only)</p>
+      <p><strong>Login:</strong> Email + Password (with magic link on first access)</p>
+    </div>
+
+    <div class="card">
+      <h3>Pages</h3>
+      <table>
+        <tr><th>Page Name</th><th>Purpose</th><th>Data Source</th></tr>
+        <tr><td>My Dashboard</td><td>Main prospect dashboard — shows their financial data</td><td>Prospects/Clients — filtered by logged-in email</td></tr>
+        <tr><td>My Profile</td><td>Prospect detail view</td><td>Prospects/Clients</td></tr>
+        <tr><td>My Meetings</td><td>Meeting history</td><td>Meetings — filtered by client</td></tr>
+        <tr><td>Meeting Details</td><td>Individual meeting detail</td><td>Meetings</td></tr>
+        <tr><td>My Action Plan</td><td>Action items assigned to prospect</td><td>Action Items — filtered by client</td></tr>
+        <tr><td>Action Details</td><td>Individual action item detail</td><td>Action Items</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Global Data Restrictions</h3>
+      <table>
+        <tr><th>Table</th><th>User Group</th><th>Rule</th></tr>
+        <tr><td>Prospects/Clients</td><td>All logged-in users</td><td>Email field IS logged-in user's email</td></tr>
+        <tr><td>Meetings</td><td>All logged-in users</td><td>Client field IS logged-in user</td></tr>
+        <tr><td>Action Items</td><td>All logged-in users</td><td>Client field IS logged-in user</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>My Dashboard — Item Details Block Fields</h3>
+      <p><strong>Top Section:</strong></p>
+      <ul class="doc-list">
+        <li>Name — Heading</li>
+        <li>Status — Tag</li>
+        <li>Salary — Text</li>
+        <li>Pension Estimate — Text</li>
+        <li>Retirement Income Gap — Text</li>
+        <li>Savings Balance — Text</li>
+        <li>Years to Retirement — Text</li>
+        <li>Retirement Readiness Score — Text</li>
+      </ul>
+      <p><strong>Section 1:</strong></p>
+      <ul class="doc-list">
+        <li>Email — Email</li>
+        <li>Phone — Text</li>
+        <li>Lead Magnet Submitted — Date</li>
+        <li>First Meeting Date — Date</li>
+      </ul>
+    </div>
+
+    <div class="alert alert-blue">
+      <strong>Password Note:</strong> Prospects are created with a system-generated temporary password via Make.com. The welcome email includes a magic link for first access. Prospects can reset their password via [client-portal-url]/forgot-password
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 8: SENDGRID -->
+  <div class="section" id="sendgrid">
+    <div class="section-header">
+      <div class="section-num">Section 08</div>
+      <h2>SendGrid Email</h2>
+    </div>
+
+    <div class="card">
+      <h3>Configuration</h3>
+      <p><strong>From:</strong> sean@k12retirementplanning.com</p>
+      <p><strong>From Name:</strong> Sean Shearon</p>
+      <p><strong>Domain:</strong> k12retirementplanning.com (verified)</p>
+      <p><strong>Subject:</strong> Your K12 Retirement Success Dashboard is Ready</p>
+    </div>
+
+    <div class="card">
+      <h3>DNS Records Added to Nixihost</h3>
+      <table>
+        <tr><th>Type</th><th>Name</th><th>Value</th></tr>
+        <tr><td>CNAME</td><td>url5304</td><td>sendgrid.net</td></tr>
+        <tr><td>CNAME</td><td>61365770</td><td>sendgrid.net</td></tr>
+        <tr><td>CNAME</td><td>em396</td><td>u61365770.wl021.sendgrid.net</td></tr>
+        <tr><td>CNAME</td><td>s1._domainkey</td><td>s1.domainkey.u61365770.wl021.sendgrid.net</td></tr>
+        <tr><td>CNAME</td><td>s2._domainkey</td><td>s2.domainkey.u61365770.wl021.sendgrid.net</td></tr>
+        <tr><td>TXT</td><td>_dmarc</td><td>v=DMARC1; p=none;</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Welcome Email Template</h3>
+      <div class="code-block">&lt;p&gt;Hi [prospect name],&lt;/p&gt;
+
+&lt;p&gt;Your personalized Retirement Success Dashboard is ready.&lt;/p&gt;
+
+&lt;p&gt;Your gap calculation and retirement data are saved and 
+waiting for you. Log in anytime to view your results, track 
+your progress, and see your Retirement Success Score™ as it 
+updates over time.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;a href="[magic link]"&gt;
+Access Your Dashboard Here →&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;When you click the link above you'll be taken directly 
+to your personal dashboard — no password required.&lt;/p&gt;
+
+&lt;p&gt;— Sean Shearon&lt;br&gt;
+K12 Retirement Planning&lt;br&gt;
+K12RetirementPlanning.com&lt;/p&gt;</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 9: CREDENTIALS -->
+  <div class="section" id="credentials">
+    <div class="section-header">
+      <div class="section-num">Section 09</div>
+      <h2>Credentials & Keys</h2>
+    </div>
+
+    <div class="alert alert-red">
+      <strong>Security Notice:</strong> API keys are not stored in this document. Store all keys in a secure password manager (e.g., 1Password, LastPass, Bitwarden). This document records where to find and regenerate keys — not the keys themselves.
+    </div>
+
+    <table>
+      <tr><th>Service</th><th>Key/Credential</th><th>Where to Find/Regenerate</th></tr>
+      <tr><td>Make.com Webhook</td><td>Webhook URL</td><td>Make.com → Webhooks → K12 Lead Magnet</td></tr>
+      <tr><td>Softr API Key</td><td>API Key</td><td>studio.softr.io → Profile icon → My Account → API Settings</td></tr>
+      <tr><td>Softr Domain</td><td>[client-portal-url]</td><td>Softr app URL</td></tr>
+      <tr><td>SendGrid API Key</td><td>API Key</td><td>SendGrid → Settings → API Keys → Make.com key</td></tr>
+      <tr><td>Airtable OAuth</td><td>OAuth connection</td><td>Make.com → Credentials → My Airtable OAuth Connection</td></tr>
+      <tr><td>Gmail/SendGrid</td><td>Email connection</td><td>Make.com → Credentials → My SendGrid connection</td></tr>
+      <tr><td>Nixihost cPanel</td><td>Login credentials</td><td>Nixihost account dashboard</td></tr>
+    </table>
+
+    <div class="card">
+      <h3>Key Locations in Make.com HTML Form</h3>
+      <p>The Make.com webhook URL is hardcoded in the lead magnet form. If the webhook URL ever changes, update it in two places:</p>
+      <ul class="doc-list">
+        <li>The <code>K12_Lead_Magnet_Dynamic.html</code> file on the server at <code>/lead_magnet/</code></li>
+        <li>The Elementor HTML widget on the WordPress gap calculator page</li>
+      </ul>
+      <p>Look for this line near the top of the script section:</p>
+      <div class="code-block">const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/...';</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 10: KNOWN ISSUES -->
+  <div class="section" id="issues">
+    <div class="section-header">
+      <div class="section-num">Section 10</div>
+      <h2>Known Issues & Workarounds</h2>
+    </div>
+
+    <table>
+      <tr><th>Issue</th><th>Status</th><th>Workaround</th></tr>
+      <tr><td>Magic link expires before prospect clicks it</td><td><span class="badge badge-gold">Monitor</span></td><td>Magic links are time-sensitive. If expired, prospect uses forgot-password page at /forgot-password</td></tr>
+      <tr><td>"Created" prefix appearing in prospect name in Softr</td><td><span class="badge badge-gold">Known</span></td><td>Check Airtable Name field — may have auto-generated prefix. Edit record directly in Airtable.</td></tr>
+      <tr><td>Make.com processes queue every 1 minute (not instant)</td><td><span class="badge badge-green">Acceptable</span></td><td>3-5 minute total delay from submission to email. Prospect sees results page instantly.</td></tr>
+      <tr><td>Duplicate Softr user error if email already exists</td><td><span class="badge badge-gold">Monitor</span></td><td>Make.com HTTP module returns Bad Request but continues. Existing user is not affected. Monitor Softr users tab.</td></tr>
+      <tr><td>Form code in two places (server file + Elementor)</td><td><span class="badge badge-red">Ongoing</span></td><td>Always update BOTH when making form changes. Elementor widget is what runs in production.</td></tr>
+      <tr><td>Complianz cookie plugin was blocking jsPDF</td><td><span class="badge badge-green">Resolved</span></td><td>Complianz deactivated. PDF generation replaced with HTML results page.</td></tr>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 11: ROADMAP -->
+  <div class="section" id="roadmap">
+    <div class="section-header">
+      <div class="section-num">Section 11</div>
+      <h2>Phase Roadmap</h2>
+    </div>
+
+    <div class="card">
+      <h3>Phase 1 — Foundation (Current) <span class="badge badge-green" style="margin-left:8px;">Complete</span></h3>
+      <ul class="doc-list">
+        <li>✅ Lead magnet gap calculator</li>
+        <li>✅ Personalized results page</li>
+        <li>✅ Make.com automation (webhook → Airtable → Softr → Email)</li>
+        <li>✅ Airtable base — all 5 tables</li>
+        <li>✅ Softr prospect dashboard</li>
+        <li>✅ SendGrid domain-authenticated email</li>
+        <li>⬜ Polish: Softr branding (logo, colors)</li>
+        <li>⬜ Polish: Name display bug fix</li>
+        <li>⬜ Polish: Magic link timing resolution</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Phase 2 — Advisor Expansion <span class="badge badge-gold" style="margin-left:8px;">Next</span></h3>
+      <ul class="doc-list">
+        <li>Add advisor records to Airtable Advisors table</li>
+        <li>Client assignment workflow in Airtable</li>
+        <li>Advisor portal in Softr (filtered view — assigned clients only)</li>
+        <li>Sean admin view — all clients, aggregate reporting</li>
+        <li>Make.com scenario update — assign advisor on prospect creation</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Phase 3 — District Deployment <span class="badge badge-blue" style="margin-left:8px;">Future</span></h3>
+      <ul class="doc-list">
+        <li>Districts table populated with Michigan school districts</li>
+        <li>Client tagging by district</li>
+        <li>HR read-only reporting view in Softr</li>
+        <li>White-label branding per district</li>
+        <li>District-level lead magnet (branded per district)</li>
+        <li>Cohort onboarding workflow</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 12: MAKING CHANGES -->
+  <div class="section" id="changes">
+    <div class="section-header">
+      <div class="section-num">Section 12</div>
+      <h2>Making Changes</h2>
+    </div>
+
+    <div class="card">
+      <h3>Adding a New Form Field</h3>
+      <ol style="margin-left:20px; font-size:13px; color:var(--mid);">
+        <li style="margin-bottom:6px;">Add the HTML input field to <code>K12_Lead_Magnet_Dynamic.html</code></li>
+        <li style="margin-bottom:6px;">Add the field to the <code>generateReport()</code> function variable declarations</li>
+        <li style="margin-bottom:6px;">Add the field to the <code>params</code> URLSearchParams object (for results page)</li>
+        <li style="margin-bottom:6px;">Add the field to the Make.com webhook JSON body in the <code>fetch()</code> call</li>
+        <li style="margin-bottom:6px;">Add the field to the Airtable Prospects/Clients table</li>
+        <li style="margin-bottom:6px;">Update the K12 Webhook Data structure in Make.com JSON module</li>
+        <li style="margin-bottom:6px;">Map the new field in Make.com Airtable module</li>
+        <li style="margin-bottom:6px;">Update the Elementor widget on WordPress with the new form code</li>
+        <li style="margin-bottom:6px;">Optionally add the field to the Softr dashboard block</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3>Adding a New Advisor</h3>
+      <ol style="margin-left:20px; font-size:13px; color:var(--mid);">
+        <li style="margin-bottom:6px;">Create record in Airtable Advisors table</li>
+        <li style="margin-bottom:6px;">Create Softr user account for the advisor</li>
+        <li style="margin-bottom:6px;">Create Advisor user group in Softr</li>
+        <li style="margin-bottom:6px;">Build advisor portal page in Softr with client-filtered view</li>
+        <li style="margin-bottom:6px;">Assign existing clients to the new advisor in Airtable</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3>Adding a New District</h3>
+      <ol style="margin-left:20px; font-size:13px; color:var(--mid);">
+        <li style="margin-bottom:6px;">Create record in Airtable Districts table</li>
+        <li style="margin-bottom:6px;">Tag relevant client records with the District field</li>
+        <li style="margin-bottom:6px;">Phase 3: build district HR view in Softr</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3>Updating the Welcome Email</h3>
+      <ol style="margin-left:20px; font-size:13px; color:var(--mid);">
+        <li style="margin-bottom:6px;">Go to Make.com → Integration Webhooks scenario</li>
+        <li style="margin-bottom:6px;">Click the SendGrid module (module 7)</li>
+        <li style="margin-bottom:6px;">Edit the Content field</li>
+        <li style="margin-bottom:6px;">Use data picker badges for dynamic values (name, magic link)</li>
+        <li style="margin-bottom:6px;">Save and test with a fresh email address</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3>Updating the Results Page</h3>
+      <ol style="margin-left:20px; font-size:13px; color:var(--mid);">
+        <li style="margin-bottom:6px;">Edit <code>K12_Results.html</code> locally</li>
+        <li style="margin-bottom:6px;">Upload to <code>/home/kretirem/public_html/lead_magnet/</code> via cPanel File Manager</li>
+        <li style="margin-bottom:6px;">Test by submitting the form and checking the results page</li>
+      </ol>
+    </div>
+
+    <div class="alert alert-red">
+      <strong>Never do this:</strong> Rename Airtable fields that are mapped in Make.com. This silently breaks the automation. If you must rename a field, update the Make.com mapping immediately after.
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- FOOTER -->
+<div class="doc-footer">
+  <p>K12 Retirement Success System™ — System Architecture Document v1.0 — Built March 2026 — K12RetirementPlanning.com</p>
+</div>
+
+</body>
+</html>

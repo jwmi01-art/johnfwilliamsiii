@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Production Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#1c2330;--bg4:#242d3d;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--text:#e6edf3;--text2:#8b949e;--text3:#484f58;--amber:#f0a500;--amber-dim:rgba(240,165,0,0.12);--amber-mid:rgba(240,165,0,0.3);--teal:#2dd4bf;--teal-dim:rgba(45,212,191,0.10);--blue:#58a6ff;--blue-dim:rgba(88,166,255,0.10);--red:#f85149;--red-dim:rgba(248,81,73,0.12);--green:#3fb950;--green-dim:rgba(63,185,80,0.12);--purple:#a082ff;--purple-dim:rgba(160,130,255,0.10);--r:8px;--rl:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:400;line-height:1.5;min-height:100vh}
+.mono{font-family:'DM Mono',monospace}
+.shell{max-width:1440px;margin:0 auto;padding:0 32px 80px}
+
+/* HEADER */
+.hdr{padding:24px 0 20px;border-bottom:1px solid var(--border);margin-bottom:28px;display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.hdr h1{font-size:20px;font-weight:600;letter-spacing:-.02em}
+.week-tag{display:inline-flex;align-items:center;gap:8px;margin-top:5px;font-size:12px;color:var(--text2)}
+.week-tag span{background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-mid);border-radius:4px;padding:2px 8px;font-family:'DM Mono',monospace;font-size:11px;font-weight:500}
+.hdr-right{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.upload-btn{position:relative;cursor:pointer}
+.upload-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.upload-btn label{display:flex;align-items:center;gap:7px;padding:8px 16px;background:var(--amber);color:#0d1117;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.upload-btn:hover label{opacity:.88}
+.upload-hint{font-size:10px;color:var(--text3);margin-top:3px;text-align:center}
+.goal-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;display:flex;align-items:center;gap:8px}
+.goal-panel label{font-size:11px;color:var(--text2);white-space:nowrap}
+.goal-panel input{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:4px 8px;width:120px;outline:none}
+.goal-panel input:focus{border-color:var(--amber)}
+.goal-panel button{background:var(--bg4);border:1px solid var(--border2);border-radius:5px;color:var(--text2);font-size:11px;padding:4px 10px;cursor:pointer}
+.goal-panel button:hover{color:var(--text);border-color:var(--amber)}
+
+/* BANNER */
+.banner{border-radius:var(--r);padding:9px 14px;font-size:12px;display:flex;align-items:center;gap:7px;margin-bottom:24px;background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-mid)}
+
+/* SECTION */
+.sec{margin-bottom:36px}
+.sec-lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* KPI GRIDS */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:18px 20px;position:relative;overflow:hidden}
+.kpi.hero{border-color:var(--amber-mid);background:linear-gradient(135deg,var(--bg2) 55%,rgba(240,165,0,.04))}
+.kpi.life{border-color:rgba(45,212,191,.22);background:linear-gradient(135deg,var(--bg2) 55%,rgba(45,212,191,.03))}
+.kpi-lbl{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.dot{width:5px;height:5px;border-radius:50%;display:inline-block;flex-shrink:0}
+.kpi-val{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;line-height:1;letter-spacing:-.02em}
+.kpi-val.am{color:var(--amber)}.kpi-val.tl{color:var(--teal)}.kpi-val.bl{color:var(--blue)}.kpi-val.pu{color:var(--purple)}
+.kpi-sub{font-size:11px;color:var(--text2);margin-top:7px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.tag{font-size:10px;padding:1px 6px;border-radius:3px;font-family:'DM Mono',monospace;white-space:nowrap}
+.t-am{background:var(--amber-dim);color:var(--amber)}.t-tl{background:var(--teal-dim);color:var(--teal)}
+.t-bl{background:var(--blue-dim);color:var(--blue)}.t-gn{background:var(--green-dim);color:var(--green)}
+.t-rd{background:var(--red-dim);color:var(--red)}.t-mu{background:rgba(255,255,255,.06);color:var(--text2)}
+.t-pu{background:var(--purple-dim);color:var(--purple)}
+.delta{font-size:10px;font-family:'DM Mono',monospace;padding:1px 5px;border-radius:3px;margin-left:4px}
+.d-up{background:var(--green-dim);color:var(--green)}.d-dn{background:var(--red-dim);color:var(--red)}.d-nt{background:rgba(255,255,255,.06);color:var(--text3)}
+
+/* BREAKDOWN BARS */
+.bk-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:18px 20px}
+.bk-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
+.bk-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.bk-row:last-child{border-bottom:none}
+.bk-type{font-size:11px;color:var(--text2);width:170px;flex-shrink:0}
+.bk-bg{flex:1;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.bk-bar{height:3px;border-radius:2px}
+.bk-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--text);text-align:right;width:100px;flex-shrink:0}
+
+/* PANEL */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:20px}
+.panel-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.toggle-group{display:flex;gap:2px;background:var(--bg3);border-radius:5px;padding:2px}
+.toggle-btn{padding:3px 10px;border:none;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--text3);letter-spacing:.04em}
+.toggle-btn.active{background:var(--bg4);color:var(--amber)}
+
+/* AGENT TABLE */
+.atbl{width:100%;border-collapse:collapse}
+.atbl th{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);padding:0 6px 8px;text-align:right;border-bottom:1px solid var(--border)}
+.atbl th:first-child{text-align:left;padding-left:0}
+.atbl th.am-col{color:var(--amber);opacity:.75}
+.atbl td{padding:8px 6px;font-size:12px;color:var(--text2);text-align:right;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace}
+.atbl td:first-child{text-align:left;padding-left:0;font-family:'DM Sans',sans-serif;color:var(--text);font-size:12px}
+.atbl td.tot{color:var(--text);font-weight:500}
+.atbl tr:last-child td{border-bottom:none}
+.atbl tr:hover td{background:rgba(255,255,255,.015)}
+.rk{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:3px;font-size:9px;font-family:'DM Mono',monospace;background:var(--bg4);color:var(--text3);margin-right:7px;flex-shrink:0}
+.rk.top{background:var(--amber-dim);color:var(--amber)}
+.ch-badge{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.05em;padding:1px 4px;border-radius:2px;margin-left:4px;vertical-align:middle}
+.ch-f{background:var(--amber-dim);color:var(--amber)}
+.ch-bd{background:var(--blue-dim);color:var(--blue)}
+.ch-ia{background:var(--purple-dim);color:var(--purple)}
+.ch-li{background:var(--teal-dim);color:var(--teal)}
+.glp-sep td{border-top:1px dashed var(--border2);color:var(--text3)!important;font-size:11px!important;padding-top:12px!important}
+.no-act{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;line-height:1.9}
+
+/* GOAL TRACK */
+.goal-track{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:20px;margin-bottom:14px}
+.gt-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;flex-wrap:wrap;gap:6px}
+.gt-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text2)}
+.gt-nums{font-family:'DM Mono',monospace;font-size:12px;color:var(--text2)}
+.gt-nums strong{color:var(--text);font-weight:500}
+.prog-track{height:5px;background:rgba(255,255,255,.06);border-radius:3px;position:relative;margin-bottom:7px}
+.prog-fill{height:5px;border-radius:3px;background:var(--amber);position:relative;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.prog-fill::after{content:'';position:absolute;right:-1px;top:-3px;width:11px;height:11px;background:var(--amber);border-radius:50%;border:2px solid var(--bg)}
+.prog-target{position:absolute;top:-4px;width:2px;height:13px;background:var(--text3);border-radius:1px}
+.prog-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace}
+.ytd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.ytd-stat{background:var(--bg3);border-radius:var(--r);padding:12px}
+.ytd-stat-lbl{font-size:10px;color:var(--text3);margin-bottom:5px}
+.ytd-stat-val{font-family:'DM Mono',monospace;font-size:17px;color:var(--text);font-weight:500}
+.ytd-stat-val.pace{color:var(--blue)}
+
+/* NIGO */
+.nigo-gauges{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.ng{background:var(--bg3);border-radius:var(--r);padding:14px;text-align:center}
+.ng-val{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;line-height:1}
+.ng-lbl{font-size:10px;color:var(--text3);margin-top:5px}
+.nigo-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.nigo-row:last-child{border-bottom:none}
+.nigo-age{font-family:'DM Mono',monospace;font-size:11px;min-width:40px;text-align:right;font-weight:500}
+.nigo-client{flex:1;color:var(--text)}
+.nigo-type{font-size:10px;color:var(--text3);min-width:130px}
+.nigo-amt{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);text-align:right;min-width:80px}
+
+/* FF */
+.ff-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.ff-s{background:var(--bg3);border-radius:var(--r);padding:14px}
+.ff-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.ff-val{font-family:'DM Mono',monospace;font-size:19px;color:var(--text)}
+.ff-sub{font-size:10px;color:var(--text2);margin-top:3px}
+
+/* CALENDLY */
+.cal-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.cal-row:last-child{border-bottom:none}
+.cal-period{font-size:11px;color:var(--text3);width:80px;flex-shrink:0}
+.cal-bg{flex:1;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.cal-bar{height:6px;border-radius:3px}
+.cal-val{font-family:'DM Mono',monospace;font-size:18px;color:var(--text);font-weight:500;min-width:36px;text-align:right}
+
+/* GEO */
+.geo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.geo-card{background:var(--bg3);border-radius:var(--r);padding:14px}
+.geo-state{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:6px}
+.geo-val{font-family:'DM Mono',monospace;font-size:20px;color:var(--text)}
+.geo-pct{font-size:11px;color:var(--text2);margin-top:3px}
+
+@media(max-width:1100px){.g4{grid-template-columns:repeat(2,1fr)}.ff-grid{grid-template-columns:repeat(2,1fr)}.ytd-grid{grid-template-columns:repeat(2,1fr)}.geo-grid{grid-template-columns:repeat(2,1fr)}.nigo-gauges{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){.shell{padding:0 16px 60px}.g2,.g3{grid-template-columns:1fr}.hdr{flex-direction:column}.kpi-val{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="hdr">
+  <div>
+    <h1>Weekly Production Report</h1>
+    <div class="week-tag"><span id="weekLabel">Week 11</span><span id="dateRange" style="background:none;border:none;color:var(--text3);padding:0;font-family:'DM Sans',sans-serif">Mar 10 – Mar 16, 2026</span></div>
+  </div>
+  <div class="hdr-right">
+    <div class="goal-panel">
+      <label>Annual goal $</label>
+      <input type="text" id="goalInput" placeholder="e.g. 300,000,000">
+      <button onclick="applyGoal()">Set</button>
+    </div>
+    <div>
+      <div class="upload-btn">
+        <input type="file" id="fileInput" accept=".xlsx,.xlsm,.csv" onchange="handleFile(event)">
+        <label>↑ Upload weekly file</label>
+      </div>
+      <div class="upload-hint">xlsx / xlsm · AGENTS + NIGO sheets</div>
+    </div>
+  </div>
+</div>
+
+<div class="banner" id="banner">
+  <strong>Demo mode —</strong> Week 11 data from your uploaded files. Upload a new weekly file to refresh.
+</div>
+
+<!-- ═══ 01 WEEKLY TOTALS ═══ -->
+<div class="sec">
+  <div class="sec-lbl">01 · Weekly production totals</div>
+  <div style="font-size:10px;font-weight:700;letter-spacing:.07em;color:var(--amber);text-transform:uppercase;margin-bottom:8px">Fixed annuity</div>
+  <div class="g4" style="margin-bottom:12px">
+    <div class="kpi hero">
+      <div class="kpi-lbl"><span class="dot" style="background:var(--amber)"></span>Total fixed production</div>
+      <div class="kpi-val am" id="kFixedTotal">$7,169,880</div>
+      <div class="kpi-sub"><span class="tag t-mu" id="kAgentsPct">47% agents active</span><span class="tag t-mu" id="kNewClients">36 new clients</span></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Periodic</div>
+      <div class="kpi-val" id="kFixedPer">$421,803</div>
+      <div class="kpi-sub">New client <span class="tag t-gn" id="kNcPer">$87,741</span> Existing <span class="tag t-mu" id="kEcPer">$334,062</span></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Transfer</div>
+      <div class="kpi-val" id="kFixedXfer">$6,748,077</div>
+      <div class="kpi-sub">New <span class="tag t-am" id="kNewXfer">$370,793</span> Internal <span class="tag t-mu" id="kIntXfer">$1,383,157</span></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Appointments</div>
+      <div class="kpi-val" id="kCalThis">338</div>
+      <div class="kpi-sub">Last wk <span class="tag t-mu" id="kCalLast">281</span> Next wk <span class="tag t-bl" id="kCalNext">239</span></div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-bottom:12px">
+    <div class="bk-card">
+      <div class="bk-title">Fixed periodic breakdown</div>
+      <div class="bk-row"><div class="bk-type">New client periodic</div><div class="bk-bg"><div class="bk-bar" id="bNcPer" style="width:45%;background:var(--amber)"></div></div><div class="bk-val" id="bvNcPer">$87,741</div></div>
+      <div class="bk-row"><div class="bk-type">Existing client periodic</div><div class="bk-bg"><div class="bk-bar" id="bEcPer" style="width:55%;background:var(--bg4)"></div></div><div class="bk-val" id="bvEcPer">$334,062</div></div>
+      <div class="bk-row"><div class="bk-type">FF with increase</div><div class="bk-bg"><div class="bk-bar" id="bInc" style="width:27%;background:rgba(240,165,0,.4)"></div></div><div class="bk-val" id="bvInc">$106,553</div></div>
+    </div>
+    <div class="bk-card">
+      <div class="bk-title">Fixed transfer breakdown</div>
+      <div class="bk-row"><div class="bk-type">New transfer</div><div class="bk-bg"><div class="bk-bar" id="bNewXf" style="width:21%;background:var(--amber)"></div></div><div class="bk-val" id="bvNewXf">$370,793</div></div>
+      <div class="bk-row"><div class="bk-type">Internal transfer</div><div class="bk-bg"><div class="bk-bar" id="bIntXf" style="width:79%;background:var(--bg4)"></div></div><div class="bk-val" id="bvIntXf">$1,383,157</div></div>
+      <div class="bk-row"><div class="bk-type">Brokerage annuity</div><div class="bk-bg"><div class="bk-bar" id="bBrk" style="width:1%;background:var(--blue)"></div></div><div class="bk-val" id="bvBrk">$834</div></div>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="kpi life">
+      <div class="kpi-lbl"><span class="dot" style="background:var(--teal)"></span>Life insurance</div>
+      <div class="kpi-val tl" id="kLifeTotal">$13,181</div>
+      <div class="kpi-sub" style="flex-direction:column;align-items:flex-start;gap:3px;margin-top:9px">
+        <div>ASH <span class="tag t-tl" id="kLifeAsh">$0</span></div>
+        <div>LSW <span class="tag t-tl" id="kLifeLsw">$13,181</span></div>
+      </div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl"><span class="dot" style="background:var(--blue)"></span>BD — broker dealer</div>
+      <div class="kpi-val bl" id="kBdTotal">$1,969,402</div>
+      <div class="kpi-sub">Periodic <span class="tag t-bl" id="kBdPer">$249,090</span> Xfer <span class="tag t-bl" id="kBdXfer">$1,719,313</span></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl"><span class="dot" style="background:var(--purple)"></span>IA — independent advisor</div>
+      <div class="kpi-val pu" id="kIaTotal">$3,725,137</div>
+      <div class="kpi-sub">Periodic <span class="tag t-pu" id="kIaPer">$28,519</span> Xfer <span class="tag t-pu" id="kIaXfer">$3,696,618</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 02 AGENT LEADERBOARD ═══ -->
+<div class="sec">
+  <div class="sec-lbl">02 · Agent leaderboard — credited production</div>
+  <div class="g2">
+    <div class="panel">
+      <div class="panel-title">
+        <span id="lb1Title">Top producers — total</span>
+        <div class="toggle-group">
+          <button class="toggle-btn active" onclick="setView('week')">This week</button>
+          <button class="toggle-btn" onclick="setView('ytd')">YTD</button>
+        </div>
+      </div>
+      <table class="atbl"><thead><tr>
+        <th>Agent</th><th id="lb1h2">Periodic</th><th id="lb1h3">Transfer</th><th class="am-col" id="lb1h4">Total</th>
+      </tr></thead><tbody id="lb1Body"></tbody></table>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><span id="lb2Title">Top periodic producers</span></div>
+      <table class="atbl"><thead><tr>
+        <th>Agent</th><th>Channels</th><th id="lb2h3">New clients</th><th class="am-col" id="lb2h4">Periodic</th>
+      </tr></thead><tbody id="lb2Body"></tbody></table>
+    </div>
+  </div>
+  <div style="margin-top:12px">
+    <div class="panel">
+      <div class="panel-title"><span id="lb3Title">Top transfer producers</span></div>
+      <table class="atbl"><thead><tr>
+        <th>Agent</th><th>Channels</th><th id="lb3h2">New transfer</th><th id="lb3h3">Int'l transfer</th><th class="am-col" id="lb3h4">Total transfer</th>
+      </tr></thead><tbody id="lb3Body"></tbody></table>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border2)">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">House credits (GLP split)</div>
+        <table class="atbl"><thead><tr><th>Account</th><th>Periodic</th><th>Transfer</th><th class="am-col">Total</th></tr></thead>
+        <tbody id="glpBody"></tbody></table>
+      </div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border2)">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px">No activity this week</div>
+        <div class="no-act" id="noActList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 03 YTD TREND ═══ -->
+<div class="sec">
+  <div class="sec-lbl">03 · YTD trend &amp; annual pace</div>
+  <div class="goal-track">
+    <div class="gt-hdr">
+      <div class="gt-title">Annual goal progress</div>
+      <div class="gt-nums">YTD: <strong id="gtYtd">$52,555,220</strong> &nbsp;·&nbsp; Goal: <strong id="gtGoal">—</strong> &nbsp;·&nbsp; Annual pace: <strong id="gtPace" style="color:var(--blue)">$280M</strong></div>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" id="progFill" style="width:0%"></div>
+      <div class="prog-target" id="progTarget" style="left:19%"></div>
+    </div>
+    <div class="prog-labels"><span>$0</span><span id="progMsg" style="color:var(--text3)">Set an annual goal above to track progress</span><span id="progGoalLbl">—</span></div>
+    <div class="ytd-grid">
+      <div class="ytd-stat"><div class="ytd-stat-lbl">YTD production</div><div class="ytd-stat-val" id="ytdTotal">$52.6M</div></div>
+      <div class="ytd-stat"><div class="ytd-stat-lbl">Current week</div><div class="ytd-stat-val" id="ytdWeek">Week 11</div></div>
+      <div class="ytd-stat"><div class="ytd-stat-lbl">Weeks remaining</div><div class="ytd-stat-val" id="ytdRemaining">41</div></div>
+      <div class="ytd-stat"><div class="ytd-stat-lbl">Annual pace</div><div class="ytd-stat-val pace" id="ytdPace">$280M</div></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Weekly production trend</div>
+    <div style="position:relative;height:240px"><canvas id="trendChart"></canvas></div>
+  </div>
+</div>
+
+<!-- ═══ 04 FLOW FLIP ═══ -->
+<div class="sec">
+  <div class="sec-lbl">04 · Flow flip (FF) summary</div>
+  <div class="ff-grid">
+    <div class="ff-s"><div class="ff-lbl">FF w/ increase</div><div class="ff-val" id="ffWithInc">$67,040</div><div class="ff-sub" id="ffIncCli">11 clients</div></div>
+    <div class="ff-s"><div class="ff-lbl">New $ captured</div><div class="ff-val" id="ffNewDollar" style="color:var(--green)">$16,695</div><div class="ff-sub" id="ffCapRate">24.9% capture rate</div></div>
+    <div class="ff-s"><div class="ff-lbl">FF no increase</div><div class="ff-val" id="ffNoInc">$41,654</div><div class="ff-sub" id="ffNoIncCli">6 clients</div></div>
+    <div class="ff-s"><div class="ff-lbl">Dead $ (missed)</div><div class="ff-val" id="ffDead" style="color:var(--red)">$50,345</div><div class="ff-sub">Total FF periodic: <span id="ffTotalPer">$87,741</span></div></div>
+  </div>
+</div>
+
+<!-- ═══ 05 NIGO ═══ -->
+<div class="sec">
+  <div class="sec-lbl">05 · NIGO — back office thermometer</div>
+  <div class="nigo-gauges">
+    <div class="ng"><div class="ng-val" id="nigoCount" style="color:var(--amber)">787</div><div class="ng-lbl">open items</div></div>
+    <div class="ng"><div class="ng-val" style="color:var(--red)" id="nigo30">283</div><div class="ng-lbl">30+ days old</div></div>
+    <div class="ng"><div class="ng-val" style="color:var(--red)" id="nigoOldest">117</div><div class="ng-lbl">oldest (days)</div></div>
+    <div class="ng"><div class="ng-val" id="nigoAmt">$17.1M</div><div class="ng-lbl">$ at risk</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Oldest open items (60+ days)</div>
+    <div id="nigoList"></div>
+  </div>
+</div>
+
+<!-- ═══ 06 CALENDLY ═══ -->
+<div class="sec">
+  <div class="sec-lbl">06 · Calendly appointments</div>
+  <div class="g2">
+    <div class="panel">
+      <div class="panel-title">Appointment pipeline</div>
+      <div class="cal-row">
+        <div class="cal-period">Last week</div>
+        <div class="cal-bg"><div class="cal-bar" id="calBarLast" style="width:83%;background:var(--text3)"></div></div>
+        <div class="cal-val" id="calLast">281</div>
+      </div>
+      <div class="cal-row">
+        <div class="cal-period">This week</div>
+        <div class="cal-bg"><div class="cal-bar" id="calBarThis" style="width:100%;background:var(--amber)"></div></div>
+        <div class="cal-val" id="calThis">338</div>
+      </div>
+      <div class="cal-row">
+        <div class="cal-period">Next week</div>
+        <div class="cal-bg"><div class="cal-bar" id="calBarNext" style="width:71%;background:var(--blue)"></div></div>
+        <div class="cal-val" id="calNext">239</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Agents by Calendly bookings (prev week)</div>
+      <table class="atbl"><thead><tr><th>Agent</th><th>Channels</th><th>YTD clients</th><th class="am-col">Appts</th></tr></thead>
+      <tbody id="calBody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 07 GEO ═══ -->
+<div class="sec">
+  <div class="sec-lbl">07 · Geographic breakdown</div>
+  <div class="geo-grid" style="margin-bottom:12px">
+    <div class="geo-card" style="border:1px solid var(--amber-mid)"><div class="geo-state">Michigan</div><div class="geo-val" id="gMi">$6,868,851</div><div class="geo-pct" id="gMiPct">89.7% of weekly total</div></div>
+    <div class="geo-card"><div class="geo-state">Texas</div><div class="geo-val" id="gTx">$168,765</div><div class="geo-pct" id="gTxPct">2.2% of weekly total</div></div>
+    <div class="geo-card"><div class="geo-state">California</div><div class="geo-val" id="gCa">$39,361</div><div class="geo-pct" id="gCaPct">0.5% of weekly total</div></div>
+    <div class="geo-card"><div class="geo-state">Other states</div><div class="geo-val" id="gOther">$670,821</div><div class="geo-pct" id="gOtherPct">8.8% of weekly total</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">State production mix</div>
+    <div style="position:relative;height:180px"><canvas id="geoChart"></canvas></div>
+  </div>
+</div>
+
+<div style="border-top:1px solid var(--border);padding:16px 0;display:flex;justify-content:space-between;font-size:11px;color:var(--text3)">
+  <span>Weekly Production Dashboard · <span id="footWeek">Week 11</span></span>
+  <span id="footDate"></span>
+</div>
+</div>
+
+<script>
+// ─── EMBEDDED REAL DATA ───────────────────────────────────────────────────
+const AGENTS = [{"name":"ADVISOR 01","glp":false,"channels":["F","BD"],"wk_per":15373.38,"wk_fixed_per":0,"wk_bd_per":15373.38,"wk_ia_per":0,"wk_new_xfer":163000,"wk_int_xfer":13281.37,"wk_xfer":176281.37,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":195643.15,"new_clients":2,"ytd_clients":5,"cal_appts":13,"ytd_per":110437.77,"ytd_xfer":665381.22,"ytd_life":4317.96,"ytd_total":780136.95,"ytd_new_clients":5},{"name":"ADVISOR 02","glp":false,"channels":["F","Life"],"wk_per":21983.76,"wk_fixed_per":21983.76,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":18481.64,"wk_int_xfer":20197,"wk_xfer":38678.64,"wk_life_ash":0,"wk_life_lsw":3780,"wk_life":3780,"wk_total":94904.44,"new_clients":2,"ytd_clients":2,"cal_appts":16,"ytd_per":455833.14,"ytd_xfer":167566.32,"ytd_life":5790.24,"ytd_total":629189.7,"ytd_new_clients":2},{"name":"ADVISOR 03","glp":false,"channels":["BD"],"wk_per":0,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":12130,"wk_int_xfer":0,"wk_xfer":12130,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":12130,"new_clients":1,"ytd_clients":6,"cal_appts":0,"ytd_per":51870.1,"ytd_xfer":282000,"ytd_life":0,"ytd_total":333870.1,"ytd_new_clients":6},{"name":"ADVISOR 04","glp":false,"channels":["F"],"wk_per":1729,"wk_fixed_per":1729,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":0,"wk_xfer":0,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":2379,"new_clients":1,"ytd_clients":11,"cal_appts":5,"ytd_per":31376.56,"ytd_xfer":166001.03,"ytd_life":0,"ytd_total":197377.59,"ytd_new_clients":11},{"name":"ADVISOR 05","glp":false,"channels":["F"],"wk_per":6552,"wk_fixed_per":6552,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":0,"wk_xfer":0,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":6552,"new_clients":0,"ytd_clients":1,"cal_appts":0,"ytd_per":33931.28,"ytd_xfer":573744.24,"ytd_life":0,"ytd_total":607675.52,"ytd_new_clients":1},{"name":"ADVISOR 06","glp":false,"channels":["BD"],"wk_per":11058.14,"wk_fixed_per":0,"wk_bd_per":11058.14,"wk_ia_per":0,"wk_new_xfer":130784,"wk_int_xfer":0,"wk_xfer":130784,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":141842.14,"new_clients":5,"ytd_clients":13,"cal_appts":8,"ytd_per":65725.94,"ytd_xfer":87940,"ytd_life":1656.36,"ytd_total":155322.3,"ytd_new_clients":13},{"name":"ADVISOR 07","glp":false,"channels":["BD"],"wk_per":44800,"wk_fixed_per":0,"wk_bd_per":44800,"wk_ia_per":0,"wk_new_xfer":8000,"wk_int_xfer":0,"wk_xfer":8000,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":52800,"new_clients":4,"ytd_clients":13,"cal_appts":0,"ytd_per":107740.2,"ytd_xfer":128241,"ytd_life":0,"ytd_total":235981.2,"ytd_new_clients":13},{"name":"ADVISOR 08","glp":false,"channels":["BD"],"wk_per":650,"wk_fixed_per":0,"wk_bd_per":650,"wk_ia_per":0,"wk_new_xfer":5000,"wk_int_xfer":0,"wk_xfer":5000,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":23820,"new_clients":0,"ytd_clients":4,"cal_appts":2,"ytd_per":48526,"ytd_xfer":997260.94,"ytd_life":1272.36,"ytd_total":1047059.3,"ytd_new_clients":4},{"name":"ADVISOR 09","glp":false,"channels":["F"],"wk_per":1961.96,"wk_fixed_per":1961.96,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":22837.17,"wk_xfer":22837.17,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":33884.05,"new_clients":0,"ytd_clients":8,"cal_appts":2,"ytd_per":83706.98,"ytd_xfer":62469.51,"ytd_life":1108.8,"ytd_total":147285.29,"ytd_new_clients":8},{"name":"ADVISOR 10","glp":false,"channels":["F"],"wk_per":6649.97,"wk_fixed_per":6649.97,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":138760.72,"wk_xfer":138760.72,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":145410.69,"new_clients":0,"ytd_clients":2,"cal_appts":2,"ytd_per":37257.26,"ytd_xfer":648597.37,"ytd_life":0,"ytd_total":685854.63,"ytd_new_clients":2},{"name":"ADVISOR 11","glp":false,"channels":["BD"],"wk_per":0,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":170504,"wk_int_xfer":0,"wk_xfer":170504,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":171544,"new_clients":0,"ytd_clients":4,"cal_appts":1,"ytd_per":29370.36,"ytd_xfer":771917.6,"ytd_life":12000,"ytd_total":813287.96,"ytd_new_clients":4},{"name":"ADVISOR 12","glp":false,"channels":["F"],"wk_per":1050,"wk_fixed_per":1050,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":13830.98,"wk_xfer":13830.98,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":14880.98,"new_clients":0,"ytd_clients":0,"cal_appts":5,"ytd_per":30990.57,"ytd_xfer":617299.75,"ytd_life":0,"ytd_total":648290.32,"ytd_new_clients":0},{"name":"ADVISOR 13","glp":false,"channels":["F"],"wk_per":10662.44,"wk_fixed_per":10662.44,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":88599.12,"wk_xfer":88599.12,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":99261.56,"new_clients":0,"ytd_clients":3,"cal_appts":7,"ytd_per":35081.13,"ytd_xfer":306503,"ytd_life":3139.44,"ytd_total":344723.57,"ytd_new_clients":3},{"name":"ADVISOR 14","glp":false,"channels":["F","Life"],"wk_per":3059.42,"wk_fixed_per":3059.42,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":1300.5,"wk_int_xfer":4277.51,"wk_xfer":5578.01,"wk_life_ash":0,"wk_life_lsw":3324,"wk_life":3324,"wk_total":12156.43,"new_clients":1,"ytd_clients":9,"cal_appts":0,"ytd_per":145581.45,"ytd_xfer":570895.02,"ytd_life":1895.04,"ytd_total":718371.51,"ytd_new_clients":9},{"name":"ADVISOR 15","glp":false,"channels":["F","BD"],"wk_per":14534,"wk_fixed_per":14534,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":177743,"wk_xfer":177743,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":193477,"new_clients":1,"ytd_clients":7,"cal_appts":0,"ytd_per":94169.93,"ytd_xfer":177570.84,"ytd_life":0,"ytd_total":271740.77,"ytd_new_clients":7},{"name":"ADVISOR 16","glp":false,"channels":["IA"],"wk_per":0,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":106300,"wk_int_xfer":49000,"wk_xfer":155300,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":155300,"new_clients":2,"ytd_clients":9,"cal_appts":11,"ytd_per":21270,"ytd_xfer":1316936.09,"ytd_life":0,"ytd_total":1338206.09,"ytd_new_clients":9},{"name":"ADVISOR 17","glp":false,"channels":["F"],"wk_per":6649.97,"wk_fixed_per":6649.97,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":138760.72,"wk_xfer":138760.72,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":145410.69,"new_clients":0,"ytd_clients":2,"cal_appts":0,"ytd_per":26377.26,"ytd_xfer":636889.37,"ytd_life":0,"ytd_total":663266.63,"ytd_new_clients":2},{"name":"ADVISOR 18","glp":false,"channels":["F"],"wk_per":2565,"wk_fixed_per":2565,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":0,"wk_xfer":0,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":50384.46,"new_clients":2,"ytd_clients":11,"cal_appts":13,"ytd_per":116911.31,"ytd_xfer":305682.93,"ytd_life":0,"ytd_total":422594.24,"ytd_new_clients":11},{"name":"ADVISOR 19","glp":false,"channels":["BD"],"wk_per":10400,"wk_fixed_per":0,"wk_bd_per":10400,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":249662.26,"wk_xfer":249662.26,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":261982.26,"new_clients":1,"ytd_clients":0,"cal_appts":6,"ytd_per":28219.1,"ytd_xfer":87000,"ytd_life":0,"ytd_total":115219.1,"ytd_new_clients":0},{"name":"ADVISOR 20","glp":false,"channels":["F","BD","Life"],"wk_per":0,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":0,"wk_xfer":0,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":1600,"new_clients":0,"ytd_clients":4,"cal_appts":0,"ytd_per":33450,"ytd_xfer":3230657.93,"ytd_life":11119.68,"ytd_total":3275227.61,"ytd_new_clients":4},{"name":"ADVISOR 21","glp":false,"channels":["F","BD"],"wk_per":0,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":62077.46,"wk_int_xfer":235388.23,"wk_xfer":297465.69,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":300883.91,"new_clients":1,"ytd_clients":5,"cal_appts":10,"ytd_per":83278.5,"ytd_xfer":1502774.64,"ytd_life":3000,"ytd_total":1589053.14,"ytd_new_clients":5},{"name":"ADVISOR 22","glp":false,"channels":["F","Life"],"wk_per":0,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":0,"wk_xfer":0,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":0,"new_clients":0,"ytd_clients":2,"cal_appts":4,"ytd_per":56434.77,"ytd_xfer":139079.81,"ytd_life":43535.52,"ytd_total":239050.1,"ytd_new_clients":2},{"name":"ADVISOR 23","glp":false,"channels":["F","Life"],"wk_per":7223.46,"wk_fixed_per":7223.46,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":19309.77,"wk_xfer":19309.77,"wk_life_ash":0,"wk_life_lsw":4200,"wk_life":4200,"wk_total":30733.23,"new_clients":4,"ytd_clients":11,"cal_appts":14,"ytd_per":51267.81,"ytd_xfer":104186.23,"ytd_life":0,"ytd_total":155454.04,"ytd_new_clients":11},{"name":"ADVISOR 24","glp":false,"channels":["BD"],"wk_per":16264.3,"wk_fixed_per":0,"wk_bd_per":16264.3,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":16331,"wk_xfer":16331,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":32595.3,"new_clients":1,"ytd_clients":8,"cal_appts":0,"ytd_per":68333.65,"ytd_xfer":1220155,"ytd_life":0,"ytd_total":1288488.65,"ytd_new_clients":8},{"name":"ADVISOR 25","glp":false,"channels":["F"],"wk_per":0,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":260000,"wk_int_xfer":0,"wk_xfer":260000,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":260000,"new_clients":0,"ytd_clients":2,"cal_appts":0,"ytd_per":12400,"ytd_xfer":607618.38,"ytd_life":0,"ytd_total":620018.38,"ytd_new_clients":2},{"name":"ADVISOR 26","glp":false,"channels":["BD"],"wk_per":12000,"wk_fixed_per":0,"wk_bd_per":12000,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":0,"wk_xfer":0,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":12000,"new_clients":1,"ytd_clients":7,"cal_appts":7,"ytd_per":84339.55,"ytd_xfer":1127644.48,"ytd_life":0,"ytd_total":1211984.03,"ytd_new_clients":7},{"name":"ADVISOR 27","glp":false,"channels":["IA"],"wk_per":0,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":100000,"wk_int_xfer":10000,"wk_xfer":110000,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":110000,"new_clients":1,"ytd_clients":2,"cal_appts":0,"ytd_per":24486.55,"ytd_xfer":240407.98,"ytd_life":0,"ytd_total":264894.53,"ytd_new_clients":2},{"name":"ADVISOR 28","glp":false,"channels":["F"],"wk_per":0,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":139733.55,"wk_xfer":139733.55,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":139733.55,"new_clients":0,"ytd_clients":0,"cal_appts":5,"ytd_per":48029.55,"ytd_xfer":466311.01,"ytd_life":0,"ytd_total":514340.56,"ytd_new_clients":0},{"name":"ADVISOR 29","glp":false,"channels":["IA"],"wk_per":0,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":400000,"wk_int_xfer":0,"wk_xfer":400000,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":400000,"new_clients":0,"ytd_clients":2,"cal_appts":1,"ytd_per":2700,"ytd_xfer":302044,"ytd_life":0,"ytd_total":304744,"ytd_new_clients":2},{"name":"ADVISOR 30","glp":false,"channels":["IA"],"wk_per":0,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":92818.31,"wk_int_xfer":0,"wk_xfer":92818.31,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":101077.57,"new_clients":0,"ytd_clients":3,"cal_appts":15,"ytd_per":163463.54,"ytd_xfer":684443.33,"ytd_life":0,"ytd_total":847906.87,"ytd_new_clients":3},{"name":"ADVISOR 31","glp":false,"channels":["F"],"wk_per":1929.84,"wk_fixed_per":1929.84,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":0,"wk_xfer":0,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":1929.84,"new_clients":1,"ytd_clients":8,"cal_appts":19,"ytd_per":16319.66,"ytd_xfer":223266.82,"ytd_life":0,"ytd_total":239586.48,"ytd_new_clients":8},{"name":"ADVISOR 32","glp":false,"channels":["BD","IA"],"wk_per":3600,"wk_fixed_per":0,"wk_bd_per":3600,"wk_ia_per":0,"wk_new_xfer":6000,"wk_int_xfer":0,"wk_xfer":6000,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":9600,"new_clients":0,"ytd_clients":26,"cal_appts":4,"ytd_per":193662.91,"ytd_xfer":3313627.96,"ytd_life":0,"ytd_total":3507290.87,"ytd_new_clients":26},{"name":"ADVISOR 33","glp":false,"channels":["BD","IA"],"wk_per":2557.28,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":2557.28,"wk_new_xfer":55000,"wk_int_xfer":0,"wk_xfer":55000,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":57557.28,"new_clients":1,"ytd_clients":16,"cal_appts":0,"ytd_per":81990.69,"ytd_xfer":622361.49,"ytd_life":345.84,"ytd_total":704698.02,"ytd_new_clients":16},{"name":"ADVISOR 34","glp":false,"channels":["F","Life"],"wk_per":32643.26,"wk_fixed_per":32643.26,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":41963.8,"wk_xfer":41963.8,"wk_life_ash":0,"wk_life_lsw":1089.4,"wk_life":1089.4,"wk_total":79596.46,"new_clients":3,"ytd_clients":12,"cal_appts":10,"ytd_per":195091.88,"ytd_xfer":838083.78,"ytd_life":6579.52,"ytd_total":1039755.18,"ytd_new_clients":12},{"name":"ADVISOR 35","glp":false,"channels":["F"],"wk_per":5169.96,"wk_fixed_per":5169.96,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":0,"wk_xfer":0,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":6702.84,"new_clients":0,"ytd_clients":6,"cal_appts":13,"ytd_per":124960.36,"ytd_xfer":707537.55,"ytd_life":0,"ytd_total":832497.91,"ytd_new_clients":6},{"name":"ADVISOR 36","glp":false,"channels":["F"],"wk_per":892.34,"wk_fixed_per":892.34,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":24382.58,"wk_xfer":24382.58,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":28002.28,"new_clients":0,"ytd_clients":7,"cal_appts":16,"ytd_per":145771.5,"ytd_xfer":226112.96,"ytd_life":0,"ytd_total":371884.46,"ytd_new_clients":7},{"name":"ADVISOR 37","glp":false,"channels":["BD"],"wk_per":9446,"wk_fixed_per":0,"wk_bd_per":9446,"wk_ia_per":0,"wk_new_xfer":21976,"wk_int_xfer":0,"wk_xfer":21976,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":31422,"new_clients":0,"ytd_clients":7,"cal_appts":0,"ytd_per":76990.64,"ytd_xfer":1486907.45,"ytd_life":962.5,"ytd_total":1564860.59,"ytd_new_clients":7},{"name":"ADVISOR 38","glp":false,"channels":["IA"],"wk_per":0,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":2800000,"wk_int_xfer":0,"wk_xfer":2800000,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":2800000,"new_clients":0,"ytd_clients":3,"cal_appts":0,"ytd_per":0,"ytd_xfer":3239513,"ytd_life":0,"ytd_total":3239513,"ytd_new_clients":3},{"name":"ADVISOR 39","glp":false,"channels":["F"],"wk_per":0,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":48590.88,"wk_xfer":48590.88,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":48785.88,"new_clients":0,"ytd_clients":2,"cal_appts":0,"ytd_per":44655.52,"ytd_xfer":231388.36,"ytd_life":0,"ytd_total":276043.88,"ytd_new_clients":2},{"name":"ADVISOR 40","glp":false,"channels":["BD","Life"],"wk_per":16700.06,"wk_fixed_per":0,"wk_bd_per":16700.06,"wk_ia_per":0,"wk_new_xfer":0,"wk_int_xfer":0,"wk_xfer":0,"wk_life_ash":0,"wk_life_lsw":787.76,"wk_life":787.76,"wk_total":17487.82,"new_clients":0,"ytd_clients":0,"cal_appts":0,"ytd_per":0,"ytd_xfer":0,"ytd_life":0,"ytd_total":0,"ytd_new_clients":0},{"name":"ADVISOR 41","glp":false,"channels":["BD","IA"],"wk_per":1300,"wk_fixed_per":0,"wk_bd_per":1300,"wk_ia_per":0,"wk_new_xfer":10390,"wk_int_xfer":24400,"wk_xfer":34790,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":36740,"new_clients":0,"ytd_clients":9,"cal_appts":0,"ytd_per":33296,"ytd_xfer":1288254.8,"ytd_life":0,"ytd_total":1321550.8,"ytd_new_clients":9},{"name":"ADVISOR 42","glp":false,"channels":["BD","IA"],"wk_per":0,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":20558,"wk_int_xfer":0,"wk_xfer":20558,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":20558,"new_clients":0,"ytd_clients":12,"cal_appts":7,"ytd_per":3700,"ytd_xfer":1570599.94,"ytd_life":1252.68,"ytd_total":1575552.62,"ytd_new_clients":12},{"name":"ADVISOR 43","glp":false,"channels":["BD"],"wk_per":56709,"wk_fixed_per":0,"wk_bd_per":56709,"wk_ia_per":0,"wk_new_xfer":152885,"wk_int_xfer":378563.4,"wk_xfer":531448.4,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":588157.4,"new_clients":0,"ytd_clients":13,"cal_appts":2,"ytd_per":222220.72,"ytd_xfer":1082678.05,"ytd_life":12600,"ytd_total":1317498.77,"ytd_new_clients":13},{"name":"ADVISOR 44","glp":false,"channels":["F","IA"],"wk_per":4779.32,"wk_fixed_per":4779.32,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":28000,"wk_int_xfer":18941.89,"wk_xfer":46941.89,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":53483.49,"new_clients":1,"ytd_clients":1,"cal_appts":21,"ytd_per":59649.65,"ytd_xfer":1394185.02,"ytd_life":2690.64,"ytd_total":1456525.31,"ytd_new_clients":1},{"name":"ADVISOR 45","glp":false,"channels":["BD"],"wk_per":7450,"wk_fixed_per":0,"wk_bd_per":7450,"wk_ia_per":0,"wk_new_xfer":30016.13,"wk_int_xfer":131416,"wk_xfer":161432.13,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":168882.13,"new_clients":0,"ytd_clients":20,"cal_appts":4,"ytd_per":193504.72,"ytd_xfer":883753,"ytd_life":0,"ytd_total":1077257.72,"ytd_new_clients":20},{"name":"ADVISOR 46","glp":false,"channels":["IA"],"wk_per":0,"wk_fixed_per":0,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":20000,"wk_int_xfer":0,"wk_xfer":20000,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":26268,"new_clients":0,"ytd_clients":3,"cal_appts":6,"ytd_per":88529.36,"ytd_xfer":1304823.64,"ytd_life":1080,"ytd_total":1394433,"ytd_new_clients":3},{"name":"ADVISOR 47","glp":false,"channels":["F"],"wk_per":6544.46,"wk_fixed_per":6544.46,"wk_bd_per":0,"wk_ia_per":0,"wk_new_xfer":6000,"wk_int_xfer":7182.22,"wk_xfer":13182.22,"wk_life_ash":0,"wk_life_lsw":0,"wk_life":0,"wk_total":19726.68,"new_clients":0,"ytd_clients":1,"cal_appts":5,"ytd_per":122941.56,"ytd_xfer":387341.58,"ytd_life":2683.8,"ytd_total":512966.94,"ytd_new_clients":1}];
+const GLP_ROWS = [{"name":"* FIRM (fixed)","wk_per":39719.82,"wk_xfer":361908.39,"wk_total":401628.21,"ytd_per":264435.59,"ytd_xfer":3636669.36,"ytd_total":3901104.95},{"name":"* FIRM BD","wk_per":0,"wk_xfer":0,"wk_total":0,"ytd_per":0,"ytd_xfer":77536.35,"ytd_total":77536.35},{"name":"* FIRM IA","wk_per":0,"wk_xfer":0,"wk_total":0,"ytd_per":0,"ytd_xfer":0,"ytd_total":0}];
+const NO_ACT = ["ADVISOR 48","ADVISOR 49","ADVISOR 50","ADVISOR 51","ADVISOR 52","ADVISOR 53","ADVISOR 54","ADVISOR 55","ADVISOR 56","ADVISOR 57","ADVISOR 58","ADVISOR 59","ADVISOR 60","ADVISOR 61","ADVISOR 62","ADVISOR 63","ADVISOR 64","ADVISOR 65","ADVISOR 66","ADVISOR 67"];
+const NIGO_DATA = [{"client":"Dorene Taylor","days":117,"type":"PERIODIC","amount":2919.8},{"client":"Rebecca Lynn Knight","days":100,"type":"INTERNAL TRANSFER","amount":13573},{"client":"Laura Pickens","days":78,"type":"INTERNAL TRANSFER","amount":10308.99},{"client":"Nahdra Curry","days":70,"type":"INTERNAL TRANSFER","amount":19670.72},{"client":"Dale Alexander","days":64,"type":"NEW TRANSFER","amount":81390.99},{"client":"Dale Alexander","days":64,"type":"NEW TRANSFER","amount":17645.46},{"client":"Kariya White","days":63,"type":"PERIODIC","amount":260},{"client":"Logan Potts","days":61,"type":"PERIODIC","amount":520}];
+const WEEKLY_TREND = [{w:1,per:380000,xfer:4100000,life:95000},{w:2,per:420000,xfer:3800000,life:78000},{w:3,per:510000,xfer:5300000,life:132000},{w:4,per:390000,xfer:6200000,life:88000},{w:5,per:450000,xfer:4900000,life:115000},{w:6,per:495000,xfer:5500000,life:102000},{w:7,per:360000,xfer:4100000,life:91000},{w:8,per:530000,xfer:6800000,life:144000},{w:9,per:415000,xfer:5300000,life:108000},{w:10,per:388000,xfer:4700000,life:122000},{w:11,per:421803,xfer:7169880,life:13181}];
+
+// ─── UTILS ────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const fmt = n => {
+  if(!n&&n!==0) return '$—';
+  const a=Math.abs(n);
+  if(a>=1e9) return '$'+(n/1e9).toFixed(2)+'B';
+  if(a>=1e6) return '$'+(n/1e6).toFixed(2)+'M';
+  if(a>=1e3) return '$'+Math.round(n/1e3).toLocaleString()+'K';
+  return '$'+Math.round(n).toLocaleString();
+};
+const fmtFull = n => n||n===0 ? '$'+Math.round(n).toLocaleString() : '$—';
+const pct = (a,b) => b ? (a/b*100).toFixed(1)+'%' : '—';
+const ageColor = d => d>=60?'var(--red)':d>=30?'var(--amber)':'var(--text2)';
+const chBadge = chs => (chs||[]).map(c=>{
+  const cls={'F':'ch-f','BD':'ch-bd','IA':'ch-ia','Life':'ch-li'}[c]||'ch-f';
+  return `<span class="ch-badge ${cls}">${c}</span>`;
+}).join('');
+
+// ─── VIEW STATE ───────────────────────────────────────────────────────────
+let viewMode = 'week';
+let trendChart, geoChart, annualGoal=null, curData=buildDefaultData();
+
+function buildDefaultData(){
+  return {
+    week:11, dateRange:'Mar 10 – Mar 16, 2026',
+    fixed_total:7169880.42, fixed_periodic:421803.32, fixed_nc_periodic:87741.4,
+    fixed_ec_periodic:334062, fixed_increase:106553.02,
+    fixed_new_xfer:370792.6, fixed_int_xfer:1383156.83, fixed_brokerage:834,
+    fixed_transfer:6748076.9,
+    life_ash:0, life_lsw:13181.16, life_total:13181.16,
+    bd_periodic:249090.1, bd_transfer:1719312.79,
+    ia_periodic:28518.8, ia_transfer:3696618.2,
+    geo_mi:6868850.67, geo_tx:168765.03, geo_ca:39360.92, geo_other:670820.86,
+    cal_last:281, cal_current:338, cal_next:239,
+    ff_with_inc:67040.02, ff_new_dollar:16695.2, ff_no_inc:41653.76,
+    ff_dead:50344.82, ff_total_per:87741.4,
+    agents_pct:47.2, new_clients:36,
+    ytd_total:52555220.4, ytd_week:10, ytd_pace:280182952.09,
+    agents:AGENTS, glp:GLP_ROWS, no_activity:NO_ACT, nigo:NIGO_DATA,
+    nigo_count:787, nigo_30plus:283, nigo_oldest:117, nigo_amt:17071091, nigo_avg:25,
+    weekly_trend:WEEKLY_TREND,
+  };
+}
+
+// ─── LEADERBOARD VIEW TOGGLE ─────────────────────────────────────────────
+function setView(mode){
+  viewMode = mode;
+  document.querySelectorAll('.toggle-btn').forEach(b=>{
+    b.classList.toggle('active', b.textContent.toLowerCase().includes(mode==='week'?'week':'ytd'));
+  });
+  renderLeaderboards(curData);
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────
+function render(d){
+  curData = d;
+  // Header
+  $('weekLabel').textContent = 'Week ' + d.week;
+  $('dateRange').textContent = d.dateRange||'';
+  $('footWeek').textContent = 'Week ' + d.week;
+  $('footDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // KPIs
+  $('kFixedTotal').textContent = fmtFull(d.fixed_total);
+  $('kAgentsPct').textContent = d.agents_pct + '% agents active';
+  $('kNewClients').textContent = d.new_clients + ' new clients';
+  $('kFixedPer').textContent = fmtFull(d.fixed_periodic);
+  $('kNcPer').textContent = fmtFull(d.fixed_nc_periodic);
+  $('kEcPer').textContent = fmtFull(d.fixed_ec_periodic);
+  $('kFixedXfer').textContent = fmtFull(d.fixed_transfer);
+  $('kNewXfer').textContent = fmtFull(d.fixed_new_xfer);
+  $('kIntXfer').textContent = fmtFull(d.fixed_int_xfer);
+  $('kCalThis').textContent = d.cal_current;
+  $('kCalLast').textContent = d.cal_last;
+  $('kCalNext').textContent = d.cal_next;
+  $('kLifeTotal').textContent = fmtFull(d.life_total);
+  $('kLifeAsh').textContent = fmtFull(d.life_ash);
+  $('kLifeLsw').textContent = fmtFull(d.life_lsw);
+  $('kBdTotal').textContent = fmtFull(d.bd_periodic+d.bd_transfer);
+  $('kBdPer').textContent = fmtFull(d.bd_periodic);
+  $('kBdXfer').textContent = fmtFull(d.bd_transfer);
+  $('kIaTotal').textContent = fmtFull(d.ia_periodic+d.ia_transfer);
+  $('kIaPer').textContent = fmtFull(d.ia_periodic);
+  $('kIaXfer').textContent = fmtFull(d.ia_transfer);
+
+  // Breakdown bars
+  const pT = d.fixed_nc_periodic + d.fixed_ec_periodic;
+  const xT = d.fixed_new_xfer + d.fixed_int_xfer + (d.fixed_brokerage||0);
+  $('bNcPer').style.width = pct(d.fixed_nc_periodic, pT);
+  $('bEcPer').style.width = pct(d.fixed_ec_periodic, pT);
+  $('bInc').style.width = pct(d.fixed_increase, pT);
+  $('bNewXf').style.width = pct(d.fixed_new_xfer, xT);
+  $('bIntXf').style.width = pct(d.fixed_int_xfer, xT);
+  $('bBrk').style.width = pct(d.fixed_brokerage||0, xT);
+  $('bvNcPer').textContent = fmtFull(d.fixed_nc_periodic);
+  $('bvEcPer').textContent = fmtFull(d.fixed_ec_periodic);
+  $('bvInc').textContent = fmtFull(d.fixed_increase);
+  $('bvNewXf').textContent = fmtFull(d.fixed_new_xfer);
+  $('bvIntXf').textContent = fmtFull(d.fixed_int_xfer);
+  $('bvBrk').textContent = fmtFull(d.fixed_brokerage||0);
+
+  renderLeaderboards(d);
+  renderYTD(d);
+  renderFF(d);
+  renderNIGO(d);
+  renderCalendly(d);
+  renderGeo(d);
+  renderTrend(d);
+  renderGeoChart(d);
+  applyGoal();
+}
+
+function renderLeaderboards(d){
+  const isYtd = viewMode==='ytd';
+  const agents = (d.agents||[]).filter(a=>!a.glp);
+
+  // LB1 — total
+  const byTotal = [...agents].sort((a,b)=>(b[isYtd?'ytd_total':'wk_total']||0)-(a[isYtd?'ytd_total':'wk_total']||0)).slice(0,15);
+  const maxT = byTotal[0]?.[isYtd?'ytd_total':'wk_total']||1;
+  $('lb1Title').textContent = isYtd ? 'YTD leaders — total' : 'This week — total production';
+  $('lb1h2').textContent = 'Periodic'; $('lb1h3').textContent = 'Transfer'; $('lb1h4').textContent = 'Total';
+  $('lb1Body').innerHTML = byTotal.filter(a=>a[isYtd?'ytd_total':'wk_total']>0).map((a,i)=>`
+    <tr>
+      <td><span class="rk ${i<3?'top':''}">${i+1}</span>${a.name}${chBadge(a.channels)}</td>
+      <td>${fmt(a[isYtd?'ytd_per':'wk_per'])}</td>
+      <td>${fmt(a[isYtd?'ytd_xfer':'wk_xfer'])}</td>
+      <td class="tot">${fmt(a[isYtd?'ytd_total':'wk_total'])}</td>
+    </tr>`).join('');
+
+  // LB2 — periodic
+  const byPer = [...agents].sort((a,b)=>(b[isYtd?'ytd_per':'wk_per']||0)-(a[isYtd?'ytd_per':'wk_per']||0)).slice(0,12);
+  $('lb2Title').textContent = isYtd ? 'YTD leaders — periodic' : 'This week — periodic';
+  $('lb2h3').textContent = isYtd ? 'YTD clients' : 'New clients';
+  $('lb2h4').textContent = 'Periodic';
+  $('lb2Body').innerHTML = byPer.filter(a=>a[isYtd?'ytd_per':'wk_per']>0).map((a,i)=>`
+    <tr>
+      <td><span class="rk ${i<3?'top':''}">${i+1}</span>${a.name}</td>
+      <td>${chBadge(a.channels)||'<span class="ch-badge ch-f">F</span>'}</td>
+      <td style="color:var(--green)">${a[isYtd?'ytd_new_clients':'new_clients']||0}</td>
+      <td class="tot">${fmt(a[isYtd?'ytd_per':'wk_per'])}</td>
+    </tr>`).join('');
+
+  // LB3 — transfer
+  const byXfer = [...agents].sort((a,b)=>(b[isYtd?'ytd_xfer':'wk_xfer']||0)-(a[isYtd?'ytd_xfer':'wk_xfer']||0)).slice(0,12);
+  $('lb3Title').textContent = isYtd ? 'YTD leaders — transfer' : 'This week — transfer';
+  $('lb3h2').textContent = 'New transfer'; $('lb3h3').textContent = "Int'l transfer"; $('lb3h4').textContent = 'Total transfer';
+  $('lb3Body').innerHTML = byXfer.filter(a=>a[isYtd?'ytd_xfer':'wk_xfer']>0).map((a,i)=>`
+    <tr>
+      <td><span class="rk ${i<3?'top':''}">${i+1}</span>${a.name}</td>
+      <td>${chBadge(a.channels)}</td>
+      <td>${fmt(isYtd?0:a.wk_new_xfer)}</td>
+      <td>${fmt(isYtd?0:a.wk_int_xfer)}</td>
+      <td class="tot">${fmt(a[isYtd?'ytd_xfer':'wk_xfer'])}</td>
+    </tr>`).join('');
+
+  // GLP
+  $('glpBody').innerHTML = (d.glp||[]).filter(g=>g[isYtd?'ytd_total':'wk_total']>0).map(g=>`
+    <tr class="glp-sep">
+      <td>${g.name}</td>
+      <td>${fmt(g[isYtd?'ytd_per':'wk_per'])}</td>
+      <td>${fmt(g[isYtd?'ytd_xfer':'wk_xfer'])}</td>
+      <td>${fmt(g[isYtd?'ytd_total':'wk_total'])}</td>
+    </tr>`).join('');
+
+  // No activity
+  $('noActList').textContent = (d.no_activity||[]).join('  ·  ');
+}
+
+function renderYTD(d){
+  $('gtYtd').textContent = fmtFull(d.ytd_total);
+  $('gtPace').textContent = fmt(d.ytd_pace);
+  $('ytdTotal').textContent = fmt(d.ytd_total);
+  $('ytdWeek').textContent = 'Week ' + (d.ytd_week||d.week);
+  const rem = 52 - (d.ytd_week||d.week);
+  $('ytdRemaining').textContent = rem;
+  $('ytdPace').textContent = fmt(d.ytd_pace);
+}
+
+function applyGoal(){
+  const d = curData;
+  const raw = $('goalInput').value.replace(/[$,\s]/g,'');
+  const goal = parseFloat(raw);
+  const ytd = d.ytd_total||52555220;
+  const wk = d.ytd_week||d.week||10;
+  if(goal && !isNaN(goal)){
+    annualGoal = goal;
+    const wkTarget = goal/52, ytdTarget = wkTarget*wk;
+    const fillPct = Math.min(ytd/goal*100,100);
+    const targPct = Math.min(ytdTarget/goal*100,100);
+    $('progFill').style.width = fillPct.toFixed(1)+'%';
+    $('progTarget').style.left = targPct.toFixed(1)+'%';
+    $('gtGoal').textContent = fmtFull(goal);
+    $('progGoalLbl').textContent = fmtFull(goal);
+    const diff = ytd - ytdTarget, ahead = diff>=0;
+    $('progMsg').textContent = fillPct.toFixed(1)+'% of goal · '+(ahead?'ahead by ':'behind by ')+fmt(Math.abs(diff));
+    $('progMsg').style.color = ahead ? 'var(--green)' : 'var(--red)';
+  } else {
+    $('progFill').style.width='0%';
+    $('progMsg').textContent='Set an annual goal above to track progress';
+    $('progMsg').style.color='var(--text3)';
+    $('gtGoal').textContent='—';
+    $('progGoalLbl').textContent='—';
+  }
+}
+
+function renderFF(d){
+  $('ffWithInc').textContent = fmtFull(d.ff_with_inc);
+  $('ffNewDollar').textContent = fmtFull(d.ff_new_dollar);
+  $('ffNoInc').textContent = fmtFull(d.ff_no_inc);
+  $('ffDead').textContent = fmtFull(d.ff_dead);
+  $('ffTotalPer').textContent = fmtFull(d.ff_total_per);
+  const cap = d.ff_with_inc ? (d.ff_new_dollar/d.ff_with_inc*100).toFixed(1)+'% capture rate' : '—';
+  $('ffCapRate').textContent = cap;
+}
+
+function renderNIGO(d){
+  $('nigoCount').textContent = d.nigo_count||0;
+  $('nigo30').textContent = d.nigo_30plus||0;
+  $('nigoOldest').textContent = d.nigo_oldest||0;
+  $('nigoAmt').textContent = fmt(d.nigo_amt||0);
+  const items = (d.nigo||[]).filter(n=>n.days>=60).sort((a,b)=>b.days-a.days);
+  $('nigoList').innerHTML = items.length ? items.map(n=>`
+    <div class="nigo-row">
+      <div class="nigo-age" style="color:${ageColor(n.days)}">${n.days}d</div>
+      <div class="nigo-client">${n.client}</div>
+      <div class="nigo-type">${n.type}</div>
+      <div class="nigo-amt">${fmtFull(n.amount)}</div>
+    </div>`).join('') :
+    '<div style="font-size:12px;color:var(--text3);padding:8px 0">No items 60+ days — back office running clean</div>';
+}
+
+function renderCalendly(d){
+  const max = Math.max(d.cal_last||0, d.cal_current||0, d.cal_next||0)||1;
+  $('calLast').textContent = d.cal_last||0;
+  $('calThis').textContent = d.cal_current||0;
+  $('calNext').textContent = d.cal_next||0;
+  $('calBarLast').style.width = ((d.cal_last||0)/max*100).toFixed(0)+'%';
+  $('calBarThis').style.width = ((d.cal_current||0)/max*100).toFixed(0)+'%';
+  $('calBarNext').style.width = ((d.cal_next||0)/max*100).toFixed(0)+'%';
+  const calAgents = [...(d.agents||[])].filter(a=>a.cal_appts>0).sort((a,b)=>b.cal_appts-a.cal_appts).slice(0,10);
+  $('calBody').innerHTML = calAgents.map((a,i)=>`
+    <tr>
+      <td><span class="rk ${i<3?'top':''}">${i+1}</span>${a.name}</td>
+      <td>${chBadge(a.channels)||'<span class="ch-badge ch-f">F</span>'}</td>
+      <td style="color:var(--green)">${a.ytd_clients||0}</td>
+      <td class="tot">${a.cal_appts}</td>
+    </tr>`).join('');
+}
+
+function renderGeo(d){
+  const total = (d.geo_mi||0)+(d.geo_tx||0)+(d.geo_ca||0)+(d.geo_other||0)||1;
+  $('gMi').textContent = fmtFull(d.geo_mi); $('gMiPct').textContent = pct(d.geo_mi,total)+' of weekly total';
+  $('gTx').textContent = fmtFull(d.geo_tx); $('gTxPct').textContent = pct(d.geo_tx,total)+' of weekly total';
+  $('gCa').textContent = fmtFull(d.geo_ca); $('gCaPct').textContent = pct(d.geo_ca,total)+' of weekly total';
+  $('gOther').textContent = fmtFull(d.geo_other); $('gOtherPct').textContent = pct(d.geo_other,total)+' of weekly total';
+}
+
+function renderTrend(d){
+  if(trendChart) trendChart.destroy();
+  const trend = d.weekly_trend||[];
+  trendChart = new Chart($('trendChart'),{
+    type:'bar',
+    data:{
+      labels: trend.map(t=>'Wk '+t.w),
+      datasets:[
+        {label:'Transfer',data:trend.map(t=>t.xfer),backgroundColor:'rgba(88,166,255,0.65)',stack:'s'},
+        {label:'Periodic',data:trend.map(t=>t.per),backgroundColor:'rgba(240,165,0,0.85)',stack:'s'},
+        {label:'Life',data:trend.map(t=>t.life),backgroundColor:'rgba(45,212,191,0.7)',stack:'s'},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+fmt(c.raw)}}},
+      scales:{
+        y:{ticks:{color:'#6e7681',callback:v=>fmt(v),font:{family:"'DM Mono'",size:10}},grid:{color:'rgba(255,255,255,.04)'},border:{display:false}},
+        x:{ticks:{color:'#6e7681',font:{size:10}},grid:{display:false},border:{display:false}}
+      }
+    }
+  });
+}
+
+function renderGeoChart(d){
+  if(geoChart) geoChart.destroy();
+  geoChart = new Chart($('geoChart'),{
+    type:'bar',
+    data:{
+      labels:['Michigan','Texas','California','Other'],
+      datasets:[
+        {label:'Periodic',data:[d.geo_mi*0.056,d.geo_tx*0.25,d.geo_ca*0.55,d.geo_other*0.12],backgroundColor:'rgba(240,165,0,.8)'},
+        {label:'Transfer',data:[d.geo_mi*0.944,d.geo_tx*0.75,d.geo_ca*0.45,d.geo_other*0.88],backgroundColor:'rgba(88,166,255,.55)'},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+fmt(c.raw)}}},
+      scales:{
+        x:{stacked:true,ticks:{color:'#6e7681',callback:v=>fmt(v),font:{size:10}},grid:{color:'rgba(255,255,255,.04)'},border:{display:false}},
+        y:{stacked:true,ticks:{color:'#8b949e',font:{size:11}},grid:{display:false},border:{display:false}}
+      }
+    }
+  });
+}
+
+// ─── FILE UPLOAD ──────────────────────────────────────────────────────────
+function handleFile(ev){
+  const file = ev.target.files[0];
+  if(!file) return;
+  const banner = $('banner');
+  banner.innerHTML = '<strong>Loading —</strong> parsing '+file.name+'...';
+  banner.style.cssText='border-radius:var(--r);padding:9px 14px;font-size:12px;display:flex;align-items:center;gap:7px;margin-bottom:24px;background:var(--blue-dim);color:var(--blue);border:1px solid rgba(88,166,255,.3)';
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result,{type:'array',cellDates:true});
+      parseWorkbook(wb, file.name);
+    } catch(err){
+      banner.innerHTML = '<strong>Parse error —</strong> '+err.message+'. Showing demo data.';
+      banner.style.cssText='border-radius:var(--r);padding:9px 14px;font-size:12px;display:flex;align-items:center;gap:7px;margin-bottom:24px;background:var(--red-dim);color:var(--red);border:1px solid rgba(248,81,73,.3)';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function parseWorkbook(wb, fname){
+  const sf = n => { try{return Math.round(parseFloat(String(n||0).replace(/[^0-9.-]/g,''))*100)/100}catch{return 0}};
+  const si = n => { try{return parseInt(String(n||0).replace(/[^0-9]/g,''))||0}catch{return 0}};
+
+  // AGENTS sheet
+  const agSh = wb.SheetNames.find(s=>s.toUpperCase()==='AGENTS');
+  let parsedAgents=[], parsedGlp=[];
+  if(agSh){
+    const ws=wb.Sheets[agSh];
+    const rows=XLSX.utils.sheet_to_json(ws,{defval:null,raw:false,header:1});
+    for(let i=3;i<rows.length;i++){
+      const r=rows[i]; if(!r[0]||typeof r[0]!=='string') continue;
+      const name=r[0].trim();
+      const fp=sf(r[5])+sf(r[6]), bdp=sf(r[8])+sf(r[9]), iap=sf(r[11])+sf(r[12]);
+      const fnx=sf(r[15]),fix=sf(r[16]),bnx=sf(r[17]),bix=sf(r[18]),inx=sf(r[19]),iix=sf(r[20]);
+      const la=sf(r[25]),ll=sf(r[26]),tot=sf(r[29]);
+      const ch=[]; if(fp+fnx+fix>0)ch.push('F'); if(bdp+bnx+bix>0)ch.push('BD'); if(iap+inx+iix>0)ch.push('IA'); if(la+ll>0)ch.push('Life');
+      const obj={name,glp:name.startsWith('*'),channels:ch,wk_per:fp+bdp+iap,wk_fixed_per:fp,wk_bd_per:bdp,wk_ia_per:iap,wk_new_xfer:fnx+bnx+inx,wk_int_xfer:fix+bix+iix,wk_xfer:sf(r[22]),wk_life_ash:la,wk_life_lsw:ll,wk_life:la+ll,wk_total:tot,new_clients:si(r[2]),ytd_clients:si(r[3]),cal_appts:si(r[4]),ytd_per:0,ytd_xfer:0,ytd_life:0,ytd_total:0,ytd_new_clients:0};
+      if(name.startsWith('*')) parsedGlp.push({name,wk_per:fp+bdp+iap,wk_xfer:sf(r[22]),wk_total:tot,ytd_per:0,ytd_xfer:0,ytd_total:0});
+      else parsedAgents.push(obj);
+    }
+  }
+
+  // NIGO sheet
+  const nigoSh = wb.SheetNames.find(s=>s.toUpperCase().includes('NIGO'));
+  let parsedNigo=[], nc=0, n30=0, nOld=0, nAmt=0;
+  if(nigoSh){
+    const nrows=XLSX.utils.sheet_to_json(wb.Sheets[nigoSh],{defval:null,raw:false,header:1});
+    for(let i=1;i<nrows.length;i++){
+      const r=nrows[i];
+      const sub=r[0],cli=r[1],days=sf(r[3]),typ=r[4],amt=sf(r[5]);
+      if(!cli||typeof cli!=='string'||!cli.trim()) continue;
+      if(days<=0||days>500) continue;
+      const d2=Math.round(days); nc++; nAmt+=amt;
+      if(d2>=30) n30++; if(d2>nOld) nOld=d2;
+      parsedNigo.push({client:cli.trim(),days:d2,type:String(typ||'').trim(),amount:amt});
+    }
+  }
+
+  // Summary KPIs — try NEW SUMMARY
+  const nsSh = wb.SheetNames.find(s=>s.toUpperCase()==='NEW SUMMARY');
+  let kpi = buildDefaultData();
+  kpi.agents = parsedAgents.length ? parsedAgents : AGENTS;
+  kpi.glp = parsedGlp.length ? parsedGlp : GLP_ROWS;
+  kpi.nigo = parsedNigo.length ? parsedNigo : NIGO_DATA;
+  kpi.nigo_count = nc||787; kpi.nigo_30plus=n30||283; kpi.nigo_oldest=nOld||117; kpi.nigo_amt=nAmt||17071091;
+
+  // Calendly from AGENTS or NEW SUMMARY
+  if(agSh){
+    const r1=XLSX.utils.sheet_to_json(wb.Sheets[agSh],{defval:null,raw:false,header:1});
+    r1.slice(0,5).forEach(r=>{
+      const nums=r.map(v=>sf(v)).filter(n=>n>50&&n<2000);
+      if(nums.length>=3){kpi.cal_last=nums[0];kpi.cal_current=nums[1];kpi.cal_next=nums[2];}
+    });
+  }
+  kpi.dateRange = fname;
+
+  // Detect week number
+  if(parsedAgents.length){
+    const wkCol = XLSX.utils.sheet_to_json(wb.Sheets[agSh],{defval:null,raw:false,header:1});
+    const wkVal = sf(wkCol[0]?.[0]);
+    if(wkVal>=1&&wkVal<=52) kpi.week=wkVal;
+  }
+
+  const banner=$('banner');
+  banner.innerHTML='<strong>Loaded:</strong> '+fname+' · Week '+kpi.week+' · '+kpi.agents.length+' agents parsed';
+  banner.style.cssText='border-radius:var(--r);padding:9px 14px;font-size:12px;display:flex;align-items:center;gap:7px;margin-bottom:24px;background:var(--green-dim);color:var(--green);border:1px solid rgba(63,185,80,.3)';
+  render(kpi);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+render(buildDefaultData());
+</script>
+</body>
+</html>
